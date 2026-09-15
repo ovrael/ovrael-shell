@@ -1,37 +1,66 @@
+using Gtk;
 using OvraelShell.Widgets;
 
 namespace OvraelShell;
 
 [GObject.Subclass<Gtk.ApplicationWindow>]
-public partial class ShellWindow
+public partial class MainBar
 {
-    private const int barWidth = 3440;
-    private const int barHeight = 50;
-
-    public static new ShellWindow New()
+    public static MainBar New(int width = 1920, int height = 30)
     {
-        return NewWithProperties([]);
+        var bar = NewWithProperties([]);
+        bar.SetDefaultSize(width, height);
+        bar.AddCssClass("main-bar");
+        return bar;
     }
 
-    // Initializer for the WorkspaceWidget class.
-    // This method sets up the window and its contents.
-    // Gtk.Application is passed in so we can access the application in this app
-    // we will use the reference to the Gtk.Application to quit from a button.
     partial void Initialize()
     {
         Title = "OvraelShell";
-        SetDefaultSize(barWidth, barHeight);
-
-        var left = WorkspaceWidget.New();
-        var center = ClockWidget.New();
-        var right = Gtk.Box.New(Gtk.Orientation.Horizontal, 0);
 
         var layout = Gtk.CenterBox.New();
 
-        layout.SetStartWidget(left);
-        layout.SetCenterWidget(center);
-        layout.SetEndWidget(right);
+        CreateStart(layout);
+        CreateCenter(layout);
+        CreateEnd(layout);
 
         SetChild(layout);
+    }
+
+    private void CreateStart(CenterBox layout)
+    {
+        var left = Gtk.Box.New(Orientation.Horizontal, 5);
+
+        var weather = WeatherWidget.New();
+        left.Append(weather);
+
+        var workspace = WorkspaceWidget.New();
+        left.Append(workspace);
+
+        layout.SetStartWidget(left);
+    }
+
+    private void CreateCenter(CenterBox layout)
+    {
+        var center = Gtk.Box.New(Orientation.Horizontal, 5);
+
+        var calendar = CalendarWidget.New();
+        center.Append(calendar);
+
+        layout.SetCenterWidget(center);
+    }
+
+    private void CreateEnd(CenterBox layout)
+    {
+        var end = Gtk.Box.New(Orientation.Horizontal, 5);
+
+        var bluetooth = BluetoothWidget.New();
+        end.Append(bluetooth);
+        var audio = AudioWidget.New();
+        end.Append(audio);
+        var internet = InternetWidget.New();
+        end.Append(internet);
+
+        layout.SetEndWidget(end);
     }
 }

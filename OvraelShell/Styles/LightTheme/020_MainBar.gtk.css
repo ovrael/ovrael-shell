@@ -1,0 +1,5 @@
+@import url("Colors.gtk.css");
+
+.main-bar {
+  background-color: @background;
+}

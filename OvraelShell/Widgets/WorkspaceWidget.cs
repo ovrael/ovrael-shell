@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Gtk;
 
 namespace OvraelShell.Widgets;
@@ -9,22 +10,19 @@ namespace OvraelShell.Widgets;
 [GObject.Subclass<Gtk.Box>]
 public partial class WorkspaceWidget
 {
-    private Gtk.Label _label;
+    private Gtk.Label label;
 
     public static WorkspaceWidget New()
     {
         return NewWithProperties([]);
     }
 
-    // Initializer for the WorkspaceWidget class.
-    // This method sets up the window and its contents.
-    // Gtk.Application is passed in so we can access the application in this app
-    // we will use the reference to the Gtk.Application to quit from a button.
+    [MemberNotNull(nameof(label))]
     partial void Initialize()
     {
         SetOrientation(Orientation.Horizontal);
-        _label = Gtk.Label.New("1  2  3  4");
+        label = Gtk.Label.New("1  2  3  4");
 
-        Append(_label);
+        Append(label);
     }
 }
