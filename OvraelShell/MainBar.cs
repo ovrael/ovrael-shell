@@ -56,10 +56,15 @@ public partial class MainBar
 
         var bluetooth = BluetoothWidget.New();
         end.Append(bluetooth);
+
         var audio = AudioWidget.New();
         end.Append(audio);
+
         var internet = InternetWidget.New();
         end.Append(internet);
+
+        var themeChanger = ThemeChangerWidget.New();
+        end.Append(themeChanger);
 
         layout.SetEndWidget(end);
     }

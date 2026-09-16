@@ -1,6 +1,7 @@
 ﻿using Gio;
 using Gtk;
 using OvraelShell;
+using OvraelShell.ThemeManager;
 using ZwlrLayerShell;
 
 const int X_MARGIN = 0;
@@ -10,7 +11,6 @@ const int BAR_WIDTH = 3440;
 const int BAR_HEIGTH = 40;
 
 var application = Gtk.Application.New("io.ovrael.shell", Gio.ApplicationFlags.FlagsNone);
-CssLoader cssLoader = new(CssTheme.Dark);
 
 application.OnActivate += (sender, e) =>
 {
@@ -20,12 +20,20 @@ application.OnActivate += (sender, e) =>
         return;
     }
 
-    cssLoader.LoadCss();
+    ThemeManager.Load(ThemeScheme.Dark);
 
     CreateBar(sender);
 };
 
 return application.RunWithSynchronizationContext(null);
+
+async System.Threading.Tasks.Task ChangeTheme(ThemeScheme newTheme, int delay, string text)
+{
+    await System.Threading.Tasks.Task.Delay(delay);
+
+    System.Console.WriteLine(text);
+    ThemeManager.ChangeTheme(newTheme);
+}
 
 void CreateBar(Gio.Application sender)
 {

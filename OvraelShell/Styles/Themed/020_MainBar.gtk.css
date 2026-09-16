@@ -1,0 +1,5 @@
+@import url("../ThemeColors/DarkColors.gtk.css"); /* COLORS_REPLACE */
+
+.main-bar {
+  background-color: @background;
+}

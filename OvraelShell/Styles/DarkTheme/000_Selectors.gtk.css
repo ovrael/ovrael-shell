@@ -1,5 +1,0 @@
-@import url("Colors.gtk.css");
-
-label {
-  color: @foreground;
-}
