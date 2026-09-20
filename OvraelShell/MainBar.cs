@@ -1,4 +1,5 @@
 using Gtk;
+using OvraelShell.Services;
 using OvraelShell.Widgets;
 
 namespace OvraelShell;
@@ -6,6 +7,8 @@ namespace OvraelShell;
 [GObject.Subclass<Gtk.ApplicationWindow>]
 public partial class MainBar
 {
+    private readonly NetworkService networkService = new();
+
     public static MainBar New(int width = 1920, int height = 30)
     {
         var bar = NewWithProperties([]);
@@ -60,7 +63,7 @@ public partial class MainBar
         var audio = AudioWidget.New();
         end.Append(audio);
 
-        var internet = InternetWidget.New();
+        var internet = InternetWidget.New(networkService);
         end.Append(internet);
 
         var themeChanger = ThemeChangerWidget.New();

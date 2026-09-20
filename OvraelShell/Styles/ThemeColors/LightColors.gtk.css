@@ -1,2 +1,10 @@
-@define-color background #8FD0CA;
+@define-color bar-background #8FD0CAE6;
 @define-color foreground #1E1E1E;
+
+@define-color button-background #00BA3E;
+@define-color button-foreground #262626;
+@define-color button-border #009C34;
+
+@define-color button-background-hover #006b3eff;
+@define-color button-foreground-hover #c2c2c2;
+@define-color button-border-hover #004c34;

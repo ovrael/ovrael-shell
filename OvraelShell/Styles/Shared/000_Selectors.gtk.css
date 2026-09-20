@@ -1,16 +1,7 @@
 window {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 label {
-    background-color: transparent;
-}
-
-button {
-    background: #222;
-    color: white;
-}
-
-button:hover {
-    background: #333;
+  background-color: transparent;
 }

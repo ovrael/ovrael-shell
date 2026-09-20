@@ -1,0 +1,27 @@
+@import url("../ThemeColors/DarkColors.gtk.css"); /* COLORS_REPLACE */
+
+.main-bar {
+  background-color: @bar-background;
+}
+
+.popover {
+  background: transparent;
+  padding: 0;
+}
+
+.popover arrow {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+}
+
+.popover contents {
+  background: #181818;
+  border: 1px solid #383838;
+  border-radius: 0;
+  padding: 10px;
+  box-shadow: none;
+}

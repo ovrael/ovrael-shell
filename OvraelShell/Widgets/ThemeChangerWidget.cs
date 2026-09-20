@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
+using OvraelShell.InterfaceElements;
 using OvraelShell.ThemeManager;
 
 namespace OvraelShell.Widgets;
@@ -8,12 +9,6 @@ namespace OvraelShell.Widgets;
 public sealed partial class ThemeChangerWidget
 {
     private Button button;
-    private readonly Dictionary<string, string> icons = new()
-    {
-        { "dark", "" },
-        { "light", "" },
-        { "auto", "󰃡" },
-    };
 
     private int schemeIndex = 1;
     private readonly ThemeScheme[] schemes =
@@ -32,16 +27,11 @@ public sealed partial class ThemeChangerWidget
     partial void Initialize()
     {
         SetOrientation(Orientation.Horizontal);
-        string icon = ThemeManager.ThemeManager.UserTheme switch
-        {
-            ThemeManager.ThemeScheme.Dark => icons["dark"],
-            ThemeManager.ThemeScheme.Light => icons["light"],
-            ThemeManager.ThemeScheme.Auto => icons["auto"],
-            _ => icons["auto"],
-        };
-        schemeIndex = schemes.IndexOf(ThemeManager.ThemeManager.UserTheme);
-        button = Button.NewWithLabel(icon);
 
+        schemeIndex = schemes.IndexOf(ThemeManager.ThemeManager.UserTheme);
+
+        button = Button.NewWithLabel(GetCurrentIcon());
+        button.SetCursor(Cursors.Pointer);
         button.OnClicked += (_, _) =>
         {
             ChangeScheme();
@@ -59,13 +49,17 @@ public sealed partial class ThemeChangerWidget
 
     private void UpdateIcon()
     {
-        string icon = ThemeManager.ThemeManager.UserTheme switch
+        button.Label = GetCurrentIcon();
+    }
+
+    private string GetCurrentIcon()
+    {
+        return ThemeManager.ThemeManager.UserTheme switch
         {
-            ThemeManager.ThemeScheme.Dark => icons["dark"],
-            ThemeManager.ThemeScheme.Light => icons["light"],
-            ThemeManager.ThemeScheme.Auto => icons["auto"],
-            _ => icons["auto"],
+            ThemeManager.ThemeScheme.Dark => Icons.Theme.Dark,
+            ThemeManager.ThemeScheme.Light => Icons.Theme.Light,
+            ThemeManager.ThemeScheme.Auto => Icons.Theme.Auto,
+            _ => Icons.Theme.Auto,
         };
-        button.Label = icon;
     }
 }

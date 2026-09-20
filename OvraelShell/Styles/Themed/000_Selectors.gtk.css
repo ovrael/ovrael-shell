@@ -3,3 +3,19 @@
 label {
   color: @foreground;
 }
+
+button {
+  background: @button-background;
+  border-color: @button-border;
+  color: @button-foreground;
+
+  border-radius: 0px;
+  border-style: solid;
+  border-width: 1px;
+}
+
+button:hover {
+  background: @button-background-hover;
+  border-color: @button-border-hover;
+  color: @button-foreground-hover;
+}
