@@ -1,3 +1,5 @@
+namespace OvraelShell.Enums.Network;
+
 public enum DeviceState : uint
 {
     Unknown = 0,

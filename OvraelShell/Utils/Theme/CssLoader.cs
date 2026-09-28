@@ -1,6 +1,6 @@
-namespace OvraelShell.ThemeManager;
-
 using Gtk;
+
+namespace OvraelShell.Utils.Theme;
 
 public class CssLoader()
 {

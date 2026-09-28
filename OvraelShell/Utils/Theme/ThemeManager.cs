@@ -1,4 +1,6 @@
-namespace OvraelShell.ThemeManager;
+using OvraelShell.Enums.Common;
+
+namespace OvraelShell.Utils.Theme;
 
 public static class ThemeManager
 {
@@ -40,7 +42,6 @@ public static class ThemeManager
         if (!UpdateTheme(newUserTheme))
             return; // Nothing changed;
 
-        // zmiana theme...
         cssLoader.SwitchTheme(ColorScheme);
         ThemeChanged?.Invoke();
     }

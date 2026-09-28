@@ -1,7 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
+using OvraelShell.Enums.Common;
 using OvraelShell.InterfaceElements;
-using OvraelShell.ThemeManager;
+using OvraelShell.Utils.Theme;
 
 namespace OvraelShell.Widgets;
 
@@ -28,7 +29,7 @@ public sealed partial class ThemeChangerWidget
     {
         SetOrientation(Orientation.Horizontal);
 
-        schemeIndex = schemes.IndexOf(ThemeManager.ThemeManager.UserTheme);
+        schemeIndex = schemes.IndexOf(ThemeManager.UserTheme);
 
         button = Button.NewWithLabel(GetCurrentIcon());
         button.SetCursor(Cursors.Pointer);
@@ -44,7 +45,7 @@ public sealed partial class ThemeChangerWidget
     private void ChangeScheme()
     {
         schemeIndex = (schemeIndex + 1) % schemes.Length;
-        ThemeManager.ThemeManager.ChangeTheme(schemes[schemeIndex]);
+        ThemeManager.ChangeTheme(schemes[schemeIndex]);
     }
 
     private void UpdateIcon()
@@ -54,11 +55,11 @@ public sealed partial class ThemeChangerWidget
 
     private string GetCurrentIcon()
     {
-        return ThemeManager.ThemeManager.UserTheme switch
+        return ThemeManager.UserTheme switch
         {
-            ThemeManager.ThemeScheme.Dark => Icons.Theme.Dark,
-            ThemeManager.ThemeScheme.Light => Icons.Theme.Light,
-            ThemeManager.ThemeScheme.Auto => Icons.Theme.Auto,
+            ThemeScheme.Dark => Icons.Theme.Dark,
+            ThemeScheme.Light => Icons.Theme.Light,
+            ThemeScheme.Auto => Icons.Theme.Auto,
             _ => Icons.Theme.Auto,
         };
     }

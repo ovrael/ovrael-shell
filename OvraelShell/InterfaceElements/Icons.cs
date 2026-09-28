@@ -4,8 +4,9 @@ public static class Icons
 {
     public static class Common
     {
-        public static readonly string Slow = "󰾆";
-        public static readonly string Fast = "󰓅";
+        public static readonly string SpeedSlow = "󰾆";
+        public static readonly string SpeedMid = "󰾅";
+        public static readonly string SpeedFast = "󰓅";
         public static readonly string Saved = "󰆓";
         public static readonly string Unsaved = "󱙃";
         public static readonly string Locked = "";
@@ -25,11 +26,20 @@ public static class Icons
         public static readonly string WifiDisconnected = "󰖪";
         public static readonly string EthernetConnected = "󰈁";
         public static readonly string EthernetDisconnected = "󰈂";
-        public static readonly string SignalVeryLow = "󰢿";
+        public static readonly string SignalStrengthVeryLow = "󰢿";
         public static readonly string SignalStrengthLow = "󰢼";
         public static readonly string SignalStrengthMedium = "󰢽";
         public static readonly string SignalStrengthHigh = "󰢾";
         public static readonly string Download = "󰇚";
         public static readonly string Upload = "󰕒";
+    }
+
+    public static class Audio
+    {
+        public static readonly string VolumeOff = "";
+        public static readonly string VolumeNone = "";
+        public static readonly string VolumeLow = "";
+        public static readonly string VolumeMedium = "";
+        public static readonly string VolumeHigh = "";
     }
 }

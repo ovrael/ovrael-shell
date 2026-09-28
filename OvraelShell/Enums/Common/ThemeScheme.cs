@@ -1,4 +1,4 @@
-namespace OvraelShell.ThemeManager;
+namespace OvraelShell.Enums.Common;
 
 public enum ThemeScheme
 {

@@ -11,4 +11,6 @@ public static class Cursors
     public static readonly Gdk.Cursor Crosshair =
         Gdk.Cursor.NewFromName("crosshair", null) ?? Default;
     public static readonly Gdk.Cursor Grab = Gdk.Cursor.NewFromName("grab", null) ?? Default;
+    public static readonly Gdk.Cursor NotAllowed =
+        Gdk.Cursor.NewFromName("not-allowed", null) ?? Default;
 }

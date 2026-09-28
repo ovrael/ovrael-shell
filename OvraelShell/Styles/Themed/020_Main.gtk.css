@@ -25,3 +25,17 @@
   padding: 10px;
   box-shadow: none;
 }
+
+.network-wireless-listitem {
+}
+
+/* Digits of the same width, so the speeds do not jitter */
+.traffic-label,
+.connection-stats-label {
+  font-feature-settings: "tnum";
+}
+
+.current-connection-box {
+  border-bottom: 1px solid #383838;
+  padding-bottom: 8px;
+}
