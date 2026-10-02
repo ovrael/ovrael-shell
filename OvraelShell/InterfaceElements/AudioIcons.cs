@@ -1,4 +1,5 @@
 using OvraelShell.Enums.Network;
+using OvraelShell.Models.Audio.PipeWire;
 using OvraelShell.Models.Network;
 
 namespace OvraelShell.InterfaceElements;
@@ -18,4 +19,16 @@ public static class AudioIcons
             _ => Icons.Audio.VolumeHigh,
         };
     }
+
+    /// <summary>Speaker for outputs, microphone for inputs, a note for application streams.</summary>
+    public static string Node(string? mediaClass) =>
+        mediaClass switch
+        {
+            PipeWireMediaTypes.AudioSink => Icons.Audio.Output,
+            PipeWireMediaTypes.AudioSource => Icons.Audio.Input,
+            _ => Icons.Audio.Stream,
+        };
+
+    public static string Microphone(bool isMuted) =>
+        isMuted ? Icons.Audio.InputMuted : Icons.Audio.Input;
 }

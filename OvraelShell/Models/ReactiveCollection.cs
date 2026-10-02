@@ -2,11 +2,11 @@ namespace OvraelShell.Models;
 
 public sealed class ReactiveCollection<T>
 {
-    private readonly List<T> _items = [];
+    private readonly List<T> items = [];
 
-    public IReadOnlyList<T> Items => _items;
+    public IReadOnlyList<T> Items => items;
 
-    public int Count => _items.Count;
+    public int Count => items.Count;
 
     public event Action? Changed;
     public event Action? Cleared;
@@ -17,7 +17,7 @@ public sealed class ReactiveCollection<T>
 
     public void Add(T item)
     {
-        _items.Add(item);
+        items.Add(item);
 
         Added?.Invoke(item);
         Changed?.Invoke();
@@ -25,7 +25,7 @@ public sealed class ReactiveCollection<T>
 
     public bool Remove(T item)
     {
-        if (!_items.Remove(item))
+        if (!items.Remove(item))
             return false;
 
         Removed?.Invoke(item);
@@ -34,28 +34,33 @@ public sealed class ReactiveCollection<T>
         return true;
     }
 
-    public void RemoveWhere(Func<T, bool> predicate)
+    public bool RemoveWhere(Func<T, bool> predicate)
     {
-        for (var i = _items.Count - 1; i >= 0; i--)
+        bool removed = false;
+        for (var i = items.Count - 1; i >= 0; i--)
         {
-            if (!predicate(_items[i]))
+            if (!predicate(items[i]))
                 continue;
 
-            var item = _items[i];
-            _items.RemoveAt(i);
+            var item = items[i];
+            items.RemoveAt(i);
 
+            removed = true;
             Removed?.Invoke(item);
         }
 
-        Changed?.Invoke();
+        if (removed)
+            Changed?.Invoke();
+
+        return removed;
     }
 
     public void Clear()
     {
-        if (_items.Count == 0)
+        if (items.Count == 0)
             return;
 
-        _items.Clear();
+        items.Clear();
         Cleared?.Invoke();
         Changed?.Invoke();
     }
@@ -73,7 +78,7 @@ public sealed class ReactiveCollection<T>
     {
         var wanted = keys.ToHashSet();
 
-        foreach (var item in _items.ToArray())
+        foreach (var item in items.ToArray())
         {
             if (wanted.Contains(keyOf(item)))
                 continue;
@@ -82,7 +87,7 @@ public sealed class ReactiveCollection<T>
             onRemoved?.Invoke(item);
         }
 
-        var existing = _items.Select(keyOf).ToHashSet();
+        var existing = items.Select(keyOf).ToHashSet();
 
         foreach (var key in wanted)
         {
@@ -94,5 +99,5 @@ public sealed class ReactiveCollection<T>
         }
     }
 
-    public T this[int index] => _items[index];
+    public T this[int index] => items[index];
 }

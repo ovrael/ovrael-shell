@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
 
-namespace OvraelShell.Widgets.Elements.Network;
+namespace OvraelShell.Widgets.Network.Elements;
 
 /// <summary>"Connect" button of a network row - reads "Hide" while the password field is open.</summary>
 [GObject.Subclass<Gtk.Button>]

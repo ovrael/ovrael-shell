@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
 
-namespace OvraelShell.Widgets.Elements.Network;
+namespace OvraelShell.Widgets.Network.Elements;
 
 /// <summary>Password field with its own Connect button, shown under a network row.</summary>
 [GObject.Subclass<Gtk.Revealer>]

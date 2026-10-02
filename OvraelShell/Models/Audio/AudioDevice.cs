@@ -7,6 +7,10 @@ using OvraelShell.Utils;
 
 public class AudioDevice
 {
+    public uint Id { get; }
+    public string Name { get; }
+
+    public AudioDirection AudioDirection { get; set; } = AudioDirection.Unknown;
     public ReactiveProperty<bool> IsMuted { get; set; } = new();
     public ReactiveProperty<uint> Volume { get; set; } = new();
     public ReactiveProperty<int> VolumeLevel { get; set; } = new();

@@ -1,24 +1,25 @@
+using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.Enums.Network;
 using OvraelShell.Models.Network;
 using OvraelShell.Services;
 
-namespace OvraelShell.Widgets.Elements.Network;
+namespace OvraelShell.Widgets.Network.Elements;
 
 /// <summary>
 /// Access points of the Wi-Fi device as a list with Connect buttons. A plain ListView rather than
 /// a wrapping widget, so a ScrolledWindow can scroll it directly and rows stay recycled.
 /// </summary>
-public sealed class WirelessNetworkList : IDisposable
+public sealed class WirelessNetworkList : IDisposable, IWithDisposableService<NetworkService>
 {
-    private readonly NetworkService networkService;
+    public NetworkService Service { get; private set; }
     private readonly Gio.ListStore model = Gio.ListStore.New(WirelessNetwork.GetGType());
 
     // Hides the active network - it is shown in CurrentConnectionBox instead
     private readonly CustomFilter activeNetworkFilter;
 
     // Saved first, then by signal - see CompareNetworks
-    private readonly CustomSorter networkSorter;
+    private readonly CustomSorter sorter;
 
     private WirelessDevice? device;
 
@@ -32,10 +33,8 @@ public sealed class WirelessNetworkList : IDisposable
 
     public WirelessNetworkList(NetworkService networkService)
     {
-        this.networkService = networkService;
-
-        networkSorter = CustomSorter.New(CompareNetworks);
-        var sortedModel = SortListModel.New(model, networkSorter);
+        sorter = CustomSorter.New(CompareNetworks);
+        var sortedModel = SortListModel.New(model, sorter);
 
         activeNetworkFilter = CustomFilter.New(IsNotActiveNetwork);
         var filteredModel = FilterListModel.New(sortedModel, activeNetworkFilter);
@@ -50,14 +49,23 @@ public sealed class WirelessNetworkList : IDisposable
             RowsChanging?.Invoke();
         };
 
-        networkService.WirelessDevice.Changed += SetDevice;
-        SetDevice(networkService.WirelessDevice.Value);
+        AddService(networkService);
     }
+
+    [MemberNotNull(nameof(Service))]
+    public void AddService(NetworkService service)
+    {
+        Service = service;
+        Service.WirelessDevice.Changed += SetDevice;
+        SetDevice(Service.WirelessDevice.Value);
+    }
+
+    public void RemoveService() { }
 
     /// <summary>Stops following the service, its device and networks - they outlive the list.</summary>
     public void Dispose()
     {
-        networkService.WirelessDevice.Changed -= SetDevice;
+        Service.WirelessDevice.Changed -= SetDevice;
         SetDevice(null);
     }
 
@@ -182,7 +190,7 @@ public sealed class WirelessNetworkList : IDisposable
 
     #region Sorting
 
-    private void OnSortKeyChanged<T>(T _) => networkSorter.Changed(SorterChange.Different);
+    private void OnSortKeyChanged<T>(T _) => sorter.Changed(SorterChange.Different);
 
     /// <summary>
     /// Saved networks first, then stronger signal (by icon level, so rows do not jump on
@@ -214,7 +222,8 @@ public sealed class WirelessNetworkList : IDisposable
 
     // The sorter gets raw GObject pointers - the model only holds networks
     private static WirelessNetwork NetworkOf(nint handle) =>
-        (WirelessNetwork)GObject.Internal.InstanceWrapper.WrapHandle<WirelessNetwork>(handle, false);
+        (WirelessNetwork)
+            GObject.Internal.InstanceWrapper.WrapHandle<WirelessNetwork>(handle, false);
 
     #endregion
 
@@ -256,7 +265,7 @@ public sealed class WirelessNetworkList : IDisposable
         try
         {
             // Progress and errors are shown from the network model (ConnectStatus)
-            if (networkService.ConnectWireless(network, password) == ConnectResult.PasswordRequired)
+            if (Service.ConnectWireless(network, password) == ConnectResult.PasswordRequired)
                 row.AskForPassword();
         }
         catch (Exception ex)

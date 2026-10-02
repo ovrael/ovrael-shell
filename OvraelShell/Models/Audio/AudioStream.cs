@@ -1,0 +1,31 @@
+using Gio;
+using GLib;
+using OvraelShell.Enums.Network;
+using OvraelShell.Models;
+using OvraelShell.Models.Network;
+using OvraelShell.Utils;
+
+public class AudioStream
+{
+    public uint Id { get; init; }
+    public string? Name { get; init; }
+    public string? Description { get; init; }
+    public string? MediaName { get; init; }
+    public string? MediaClass { get; init; }
+
+    public AudioDirection AudioDirection { get; set; } = AudioDirection.Unknown;
+    public ReactiveProperty<bool> IsMuted { get; set; } = new();
+    public ReactiveProperty<uint> Volume { get; set; } = new();
+    public ReactiveProperty<int> VolumeLevel { get; set; } = new();
+
+    public static int VolumeLevelOf(uint volume) =>
+        volume switch
+        {
+            <= 0 => 0,
+            < 30 => 1,
+            < 70 => 2,
+            _ => 3,
+        };
+
+    public AudioStream() { }
+}

@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.Services;
 using OvraelShell.Utils;
-using OvraelShell.Widgets.Elements.Network;
+using OvraelShell.Widgets.Network.Elements;
 using ZwlrLayerShell;
 
 namespace OvraelShell.Widgets.Network;

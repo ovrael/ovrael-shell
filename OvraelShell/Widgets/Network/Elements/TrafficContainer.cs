@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
 
-namespace OvraelShell.Widgets.Elements.Network;
+namespace OvraelShell.Widgets.Network.Elements;
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class TrafficContainer

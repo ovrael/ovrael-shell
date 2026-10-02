@@ -29,6 +29,18 @@
 .network-wireless-listitem {
 }
 
+/* Output / Input tabs - only the open one looks like a button */
+.audio-tabs button:not(:checked):not(:hover) {
+  background: transparent;
+  color: @foreground;
+}
+
+/* Second line of the audio rows - media class, where it plays */
+.audio-listitem-details {
+  font-size: 0.85em;
+  opacity: 0.6;
+}
+
 /* Digits of the same width, so the speeds do not jitter */
 .traffic-label,
 .connection-stats-label {

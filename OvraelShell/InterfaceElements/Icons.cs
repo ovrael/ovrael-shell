@@ -41,5 +41,10 @@ public static class Icons
         public static readonly string VolumeLow = "";
         public static readonly string VolumeMedium = "";
         public static readonly string VolumeHigh = "";
+        public static readonly string Output = "󰓃";
+        public static readonly string Input = "󰍬";
+        public static readonly string InputMuted = "󰍭";
+        public static readonly string Stream = "󰝚";
+        public static readonly string MoveStreamsHere = "󰓾";
     }
 }

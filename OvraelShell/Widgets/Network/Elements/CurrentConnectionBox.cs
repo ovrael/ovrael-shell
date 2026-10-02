@@ -5,7 +5,7 @@ using OvraelShell.InterfaceElements;
 using OvraelShell.Models.Network;
 using OvraelShell.Services;
 
-namespace OvraelShell.Widgets.Elements.Network;
+namespace OvraelShell.Widgets.Network.Elements;
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class CurrentConnectionBox : IWithDisposableService<NetworkService>

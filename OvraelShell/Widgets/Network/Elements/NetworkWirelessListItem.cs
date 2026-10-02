@@ -3,7 +3,7 @@ using Gtk;
 using OvraelShell.InterfaceElements;
 using OvraelShell.Models.Network;
 
-namespace OvraelShell.Widgets.Elements.Network;
+namespace OvraelShell.Widgets.Network.Elements;
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class NetworkWirelessListItem
