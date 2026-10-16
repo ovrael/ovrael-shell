@@ -3,19 +3,22 @@ namespace OvraelShell.Models;
 public sealed class ReactiveProperty<T>
 {
     private T _value;
+    private readonly IEqualityComparer<T> _comparer;
 
     public T Value => _value;
 
     public event Action<T>? Changed;
 
-    public ReactiveProperty(T initialValue = default!)
+    /// <param name="comparer">Decides when a new value is a change. Default equality if null.</param>
+    public ReactiveProperty(T initialValue = default!, IEqualityComparer<T>? comparer = null)
     {
         _value = initialValue;
+        _comparer = comparer ?? EqualityComparer<T>.Default;
     }
 
     public bool Set(T value)
     {
-        if (EqualityComparer<T>.Default.Equals(_value, value))
+        if (_comparer.Equals(_value, value))
             return false;
 
         _value = value;

@@ -63,3 +63,15 @@
   border-bottom: 1px solid #383838;
   padding-bottom: 8px;
 }
+
+/* Workspaces - only the active one shows its name */
+.workspace {
+  padding: 0 6px;
+  opacity: 0.6;
+}
+
+.workspace.active {
+  background: @button-background;
+  color: @button-foreground;
+  opacity: 1;
+}

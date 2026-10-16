@@ -11,6 +11,7 @@ public partial class MainBar
 {
     // Shared by all bars and owned by Program - it outlives this one
     private AudioService audioService;
+    private HyprlandService hyprlandService;
     private NetworkService networkService;
 
     private NetworkBarButton networkButton;
@@ -18,6 +19,7 @@ public partial class MainBar
     public static MainBar New(
         NetworkService networkService,
         AudioService audioService,
+        HyprlandService hyprlandService,
         int width = 1920,
         int height = 30
     )
@@ -25,6 +27,7 @@ public partial class MainBar
         var bar = NewWithProperties([]);
         bar.networkService = networkService;
         bar.audioService = audioService;
+        bar.hyprlandService = hyprlandService;
         bar.CreateLayout();
         bar.SetDefaultSize(width, height);
         bar.AddCssClass("main-bar");
@@ -72,7 +75,7 @@ public partial class MainBar
         var weather = WeatherWidget.New();
         left.Append(weather);
 
-        var workspace = WorkspaceWidget.New();
+        var workspace = WorkspaceWidget.New(hyprlandService);
         left.Append(workspace);
 
         layout.SetStartWidget(left);

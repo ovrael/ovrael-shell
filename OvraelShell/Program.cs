@@ -1,6 +1,7 @@
 ﻿using Gtk;
 using OvraelShell.Enums.Common;
 using OvraelShell.Services;
+using OvraelShell.Utils.Settings;
 using OvraelShell.Utils.Theme;
 using OvraelShell.Widgets;
 using ZwlrLayerShell;
@@ -16,6 +17,7 @@ var application = Gtk.Application.New("io.ovrael.shell", Gio.ApplicationFlags.Fl
 // One for the whole application - every bar shows the same NetworkManager state
 NetworkService? networkService = null;
 AudioService? audioService = null;
+HyprlandService? hyprlandService = null;
 
 // Open bars - GetWindows gives a raw GLib list, so they are tracked here
 var bars = new List<MainBar>();
@@ -28,13 +30,17 @@ application.OnActivate += (sender, e) =>
         return;
     }
 
+    // Before the bars - their widgets read the settings when they are created
+    UserSettings.Load();
+
     ThemeManager.Load(ThemeScheme.Dark);
 
     // Activate runs again when the application is launched a second time
     networkService ??= new NetworkService();
     audioService ??= new AudioService();
+    hyprlandService ??= new HyprlandService();
 
-    CreateBar(sender, networkService, audioService);
+    CreateBar(sender, networkService, audioService, hyprlandService);
 };
 
 application.OnShutdown += (_, _) =>
@@ -48,6 +54,9 @@ application.OnShutdown += (_, _) =>
 
     networkService?.Dispose();
     audioService?.Dispose();
+    hyprlandService?.Dispose();
+
+    UserSettings.Unload();
 };
 
 return application.RunWithSynchronizationContext(null);
@@ -60,9 +69,20 @@ async System.Threading.Tasks.Task ChangeTheme(ThemeScheme newTheme, int delay, s
     ThemeManager.ChangeTheme(newTheme);
 }
 
-void CreateBar(Gio.Application sender, NetworkService networkService, AudioService audioService)
+void CreateBar(
+    Gio.Application sender,
+    NetworkService networkService,
+    AudioService audioService,
+    HyprlandService hyprlandService
+)
 {
-    var window = MainBar.New(networkService, audioService, BAR_WIDTH, BAR_HEIGTH);
+    var window = MainBar.New(
+        networkService,
+        audioService,
+        hyprlandService,
+        BAR_WIDTH,
+        BAR_HEIGTH
+    );
     // Set the "Application" property of the window to the current application instance.
     // This links the window to the application, allowing them to work together.
     window.Application = (Gtk.Application)sender;

@@ -47,4 +47,9 @@ public static class Icons
         public static readonly string Stream = "󰝚";
         public static readonly string MoveStreamsHere = "󰓾";
     }
+
+    public static class Workspace
+    {
+        public static readonly string Other = "?";
+    }
 }
