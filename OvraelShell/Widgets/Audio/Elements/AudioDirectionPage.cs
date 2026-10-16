@@ -89,6 +89,17 @@ public sealed partial class AudioDirectionPage : IWithDisposableService<AudioSer
         );
         streamList.RowsChanging += HoldStreamsHeight;
         streamsScroll.SetChild(streamList.View);
+
+        // One unlocked slider on the page - selecting a row in one list unselects the other
+        deviceList.RowSelected += streamList.ClearSelection;
+        streamList.RowSelected += deviceList.ClearSelection;
+    }
+
+    /// <summary>Locks all sliders again - called when the popover closes.</summary>
+    public void ClearSelection()
+    {
+        deviceList?.ClearSelection();
+        streamList?.ClearSelection();
     }
 
     public void RemoveService()

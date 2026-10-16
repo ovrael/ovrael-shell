@@ -99,6 +99,10 @@ public sealed partial class PipeWireNodeListItem
         volumeScale.Hexpand = true;
         volumeScale.OnValueChanged += (_, _) => OnVolumeMoved();
 
+        // Locked until the row is selected - see SetActive
+        volumeScale.CanTarget = false;
+        volumeScale.Focusable = false;
+
         moveStreamsButton = Button.NewWithLabel(Icons.Audio.MoveStreamsHere);
         moveStreamsButton.SetCursor(Cursors.Pointer);
         moveStreamsButton.OnClicked += (_, _) => OnMoveStreamsClicked();
@@ -149,6 +153,16 @@ public sealed partial class PipeWireNodeListItem
         lastUserChange = 0;
 
         Refresh();
+    }
+
+    /// <summary>
+    /// Unlocks the volume slider of a selected row. A locked one takes no clicks, scrolls or
+    /// focus - scrolling the list over it would change the volume otherwise.
+    /// </summary>
+    public void SetActive(bool active)
+    {
+        volumeScale.CanTarget = active;
+        volumeScale.Focusable = active;
     }
 
     /// <summary>Stops following the node - otherwise it would update a recycled row.</summary>

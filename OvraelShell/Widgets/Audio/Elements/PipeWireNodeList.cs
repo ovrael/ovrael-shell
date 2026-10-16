@@ -19,6 +19,12 @@ public sealed class PipeWireNodeList : IDisposable, IWithDisposableService<Audio
     // Media class of a node never changes, so the nodes are filtered once, when added
     private readonly HashSet<string> mediaClasses;
 
+    // GTK_INVALID_LIST_POSITION - nothing selected
+    private const uint NoPosition = uint.MaxValue;
+
+    // A click on a row selects it, which unlocks its volume slider - see PipeWireNodeListItem.SetActive
+    private readonly SingleSelection selection;
+
     public ListView View { get; }
 
     /// <summary>
@@ -26,6 +32,9 @@ public sealed class PipeWireNodeList : IDisposable, IWithDisposableService<Audio
     /// the view still has its old size, see AudioDirectionPage.HoldListHeight.
     /// </summary>
     public event Action? RowsChanging;
+
+    /// <summary>A row was selected - its slider is unlocked now.</summary>
+    public event Action? RowSelected;
 
     /// <param name="mediaClasses">Nodes to show, like <see cref="PipeWireMediaTypes.AudioSink"/></param>
     public PipeWireNodeList(AudioService service, params string[] mediaClasses)
@@ -35,9 +44,18 @@ public sealed class PipeWireNodeList : IDisposable, IWithDisposableService<Audio
         // Sort keys of a node never change, so the sorter is never refreshed
         var sortedModel = SortListModel.New(model, CustomSorter.New(CompareNodes));
 
-        // Only shows the nodes - nothing to select
-        var selection = NoSelection.New(sortedModel);
+        // Nothing is selected until clicked, and a click on the selected row unselects it
+        selection = SingleSelection.New(sortedModel);
+        selection.SetAutoselect(false);
+        selection.SetCanUnselect(true);
+        selection.OnSelectionChanged += (_, _) =>
+        {
+            if (selection.GetSelected() != NoPosition)
+                RowSelected?.Invoke();
+        };
+
         View = ListView.New(selection, CreateRowFactory());
+        View.AddCssClass("audio-node-list");
 
         // Connected after the view's own handler, so it runs once the view has taken the change
         selection.OnItemsChanged += (_, _) => RowsChanging?.Invoke();
@@ -64,6 +82,9 @@ public sealed class PipeWireNodeList : IDisposable, IWithDisposableService<Audio
         Service.Nodes.Removed -= RemoveNode;
         Service.Nodes.Cleared -= ClearNodes;
     }
+
+    /// <summary>Locks the slider of the selected row again.</summary>
+    public void ClearSelection() => selection.SetSelected(NoPosition);
 
     /// <summary>Stops following the service and its nodes - they outlive the list.</summary>
     public void Dispose()
@@ -141,7 +162,18 @@ public sealed class PipeWireNodeList : IDisposable, IWithDisposableService<Audio
         var factory = SignalListItemFactory.New();
 
         factory.OnSetup += (_, args) =>
-            ((ListItem)args.Object).SetChild(PipeWireNodeListItem.New());
+        {
+            var listItem = (ListItem)args.Object;
+            var row = PipeWireNodeListItem.New();
+            listItem.SetChild(row);
+
+            // Once per row widget - the list item keeps its row, only the node changes
+            listItem.OnNotify += (_, notify) =>
+            {
+                if (notify.Pspec.GetName() == "selected")
+                    row.SetActive(listItem.GetSelected());
+            };
+        };
 
         factory.OnBind += (_, args) =>
         {
@@ -151,7 +183,10 @@ public sealed class PipeWireNodeList : IDisposable, IWithDisposableService<Audio
                 listItem.GetChild() is PipeWireNodeListItem row
                 && listItem.GetItem() is PipeWireNode node
             )
+            {
                 row.Bind(node, Service);
+                row.SetActive(listItem.GetSelected());
+            }
             else
                 System.Console.WriteLine($"Cannot bind audio node list row {listItem}");
         };

@@ -35,6 +35,18 @@
   color: @foreground;
 }
 
+/* Selected audio row - its volume slider is unlocked. Faint, so the slider stays visible */
+.audio-node-list > row:selected {
+  background: alpha(@button-background, 0.25);
+  color: @foreground;
+}
+
+/* GTK gives the slider of a selected row a dark border - keep it like the others */
+.audio-node-list > row:selected scale highlight {
+  background: @button-background;
+  border-color: @button-background;
+}
+
 /* Second line of the audio rows - media class, where it plays */
 .audio-listitem-details {
   font-size: 0.85em;

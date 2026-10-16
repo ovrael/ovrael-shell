@@ -47,6 +47,7 @@ public sealed partial class AudioPopover : IWithDisposableService<AudioService>
         AddCssClass("popover");
 
         OnShow += (_, _) => OnShown();
+        OnHide += (_, _) => OnHidden();
     }
 
     [MemberNotNull(nameof(Service))]
@@ -93,6 +94,13 @@ public sealed partial class AudioPopover : IWithDisposableService<AudioService>
         inputPage?.ResetHeights();
 
         UpdateMaxHeight();
+    }
+
+    // Opened again, the popover starts with every slider locked
+    private void OnHidden()
+    {
+        outputPage?.ClearSelection();
+        inputPage?.ClearSelection();
     }
 
     /// <summary>
