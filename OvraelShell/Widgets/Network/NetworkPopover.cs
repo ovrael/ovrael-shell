@@ -3,7 +3,6 @@ using Gtk;
 using OvraelShell.Services;
 using OvraelShell.Utils;
 using OvraelShell.Widgets.Network.Elements;
-using ZwlrLayerShell;
 
 namespace OvraelShell.Widgets.Network;
 
@@ -108,7 +107,7 @@ public sealed partial class NetworkPopover : IWithDisposableService<NetworkServi
     private void OnShown()
     {
         // Keyboard only while open - needed to type the Wi-Fi password
-        SetBarKeyboardMode(KeyboardMode.OnDemand);
+        BarKeyboard.Request(this);
 
         // Fit the list anew on every show - before the max, which may not go below the min
         networksScroll.SetMinContentHeight(-1);
@@ -125,14 +124,7 @@ public sealed partial class NetworkPopover : IWithDisposableService<NetworkServi
         }
     }
 
-    // Hand the keyboard back when closing. With OnDemand the compositor keeps
-    // focus on the bar until another window is clicked, so typing elsewhere
-    // would not work after the popover closes.
-    private void OnHidden()
-    {
-        GetParentWindow()?.SetFocus(null);
-        SetBarKeyboardMode(KeyboardMode.None);
-    }
+    private void OnHidden() => BarKeyboard.Release(this);
 
     /// <summary>
     /// Keeps the list from shrinking while the popover is open. Every size change makes GTK
@@ -154,14 +146,6 @@ public sealed partial class NetworkPopover : IWithDisposableService<NetworkServi
 
         if (height > networksScroll.GetMinContentHeight())
             networksScroll.SetMinContentHeight(height);
-    }
-
-    private Gtk.Window? GetParentWindow() => GetParent()?.GetRoot() as Gtk.Window;
-
-    private void SetBarKeyboardMode(KeyboardMode mode)
-    {
-        if (GetParentWindow() is { } window && LayerShell.IsLayerWindow(window))
-            LayerShell.SetKeyboardMode(window, mode);
     }
 
     /// <summary>

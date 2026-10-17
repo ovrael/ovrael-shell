@@ -48,6 +48,45 @@ public static class Icons
         public static readonly string MoveStreamsHere = "󰓾";
     }
 
+    public static class Bluetooth
+    {
+        public static readonly string On = "󰂯";
+        public static readonly string Connected = "󰂱";
+        public static readonly string Off = "󰂲";
+        public static readonly string Forget = "󰆴";
+        public static readonly string Rename = "󰏫";
+        public static readonly string Device = "󰂯";
+        public static readonly string Headset = "󰋎";
+        public static readonly string Headphones = "󰋋";
+        public static readonly string Speaker = "󰓃";
+        public static readonly string Gamepad = "󰊗";
+        public static readonly string Keyboard = "󰌌";
+        public static readonly string Mouse = "󰍽";
+        public static readonly string Phone = "󰄜";
+        public static readonly string Computer = "󰌢";
+        public static readonly string Display = "󰍹";
+        public static readonly string Printer = "󰐪";
+        public static readonly string Watch = "󰖉";
+        public static readonly string Tablet = "󰓶";
+        public static readonly string Camera = "󰄀";
+
+        // 0%, 10%, ... 100%
+        public static readonly string[] Battery =
+        [
+            "󰂎",
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂",
+            "󰁹",
+        ];
+    }
+
     public static class Workspace
     {
         public static readonly string Other = "?";

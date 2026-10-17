@@ -29,8 +29,9 @@
 .network-wireless-listitem {
 }
 
-/* Output / Input tabs - only the open one looks like a button */
-.audio-tabs button:not(:checked):not(:hover) {
+/* Output / Input tabs, New / Known bluetooth tabs - only the open one looks like a button */
+.audio-tabs button:not(:checked):not(:hover),
+.bluetooth-tabs button:not(:checked):not(:hover) {
   background: transparent;
   color: @foreground;
 }
@@ -47,8 +48,10 @@
   border-color: @button-background;
 }
 
-/* Second line of the audio rows - media class, where it plays */
-.audio-listitem-details {
+/* Second line of the audio rows - media class, where it plays.
+   Second line of the bluetooth rows - state and battery */
+.audio-listitem-details,
+.bluetooth-listitem-details {
   font-size: 0.85em;
   opacity: 0.6;
 }
@@ -74,4 +77,20 @@
   background: @button-background;
   color: @button-foreground;
   opacity: 1;
+}
+
+/* Device type icon of a bluetooth row */
+.bluetooth-listitem-icon {
+  font-size: 1.4em;
+}
+
+/* "Bluetooth is off", "Searching for devices..." */
+.bluetooth-status {
+  opacity: 0.6;
+}
+
+/* "No new devices", "No known devices" in an empty bluetooth tab */
+.bluetooth-empty {
+  margin: 12px;
+  opacity: 0.6;
 }

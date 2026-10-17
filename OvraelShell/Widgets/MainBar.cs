@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.Services;
 using OvraelShell.Widgets.Audio;
+using OvraelShell.Widgets.Bluetooth;
 using OvraelShell.Widgets.Network;
 
 namespace OvraelShell.Widgets;
@@ -11,14 +12,17 @@ public partial class MainBar
 {
     // Shared by all bars and owned by Program - it outlives this one
     private AudioService audioService;
+    private BluetoothService bluetoothService;
     private HyprlandService hyprlandService;
     private NetworkService networkService;
 
     private NetworkBarButton networkButton;
+    private BluetoothBarButton bluetoothButton;
 
     public static MainBar New(
         NetworkService networkService,
         AudioService audioService,
+        BluetoothService bluetoothService,
         HyprlandService hyprlandService,
         int width = 1920,
         int height = 30
@@ -27,6 +31,7 @@ public partial class MainBar
         var bar = NewWithProperties([]);
         bar.networkService = networkService;
         bar.audioService = audioService;
+        bar.bluetoothService = bluetoothService;
         bar.hyprlandService = hyprlandService;
         bar.CreateLayout();
         bar.SetDefaultSize(width, height);
@@ -43,20 +48,24 @@ public partial class MainBar
         // so they would never be freed and destroyed.
         OnCloseRequest += (_, _) =>
         {
-            RemoveNetworkService();
+            RemoveServices();
             return false;
         };
     }
 
     /// <summary>
-    /// Detaches the bar from the shared service. Called on close; call it yourself before
+    /// Detaches the bar from the shared services. Called on close; call it yourself before
     /// destroying the bar in another way (Destroy, application quit) - those skip close-request.
     /// Safe to call more than once.
     /// </summary>
-    public void RemoveNetworkService() => networkButton?.RemoveService();
+    public void RemoveServices()
+    {
+        networkButton?.RemoveService();
+        bluetoothButton?.RemoveService();
+    }
 
     // Widgets that need the service are created after New has set it
-    [MemberNotNull(nameof(networkButton))]
+    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton))]
     private void CreateLayout()
     {
         var layout = Gtk.CenterBox.New();
@@ -91,13 +100,13 @@ public partial class MainBar
         layout.SetCenterWidget(center);
     }
 
-    [MemberNotNull(nameof(networkButton))]
+    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton))]
     private void CreateEnd(CenterBox layout)
     {
         var end = Gtk.Box.New(Orientation.Horizontal, 5);
 
-        var bluetooth = BluetoothWidget.New();
-        end.Append(bluetooth);
+        bluetoothButton = BluetoothBarButton.New(bluetoothService);
+        end.Append(bluetoothButton);
 
         var audio = AudioBarButton.New(audioService);
         end.Append(audio);

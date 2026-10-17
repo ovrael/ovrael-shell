@@ -17,6 +17,7 @@ var application = Gtk.Application.New("io.ovrael.shell", Gio.ApplicationFlags.Fl
 // One for the whole application - every bar shows the same NetworkManager state
 NetworkService? networkService = null;
 AudioService? audioService = null;
+BluetoothService? bluetoothService = null;
 HyprlandService? hyprlandService = null;
 
 // Open bars - GetWindows gives a raw GLib list, so they are tracked here
@@ -38,9 +39,10 @@ application.OnActivate += (sender, e) =>
     // Activate runs again when the application is launched a second time
     networkService ??= new NetworkService();
     audioService ??= new AudioService();
+    bluetoothService ??= new BluetoothService();
     hyprlandService ??= new HyprlandService();
 
-    CreateBar(sender, networkService, audioService, hyprlandService);
+    CreateBar(sender, networkService, audioService, bluetoothService, hyprlandService);
 };
 
 application.OnShutdown += (_, _) =>
@@ -48,12 +50,13 @@ application.OnShutdown += (_, _) =>
     // Quitting destroys the bars without close-request - detach them first,
     // so disposing the service does not update their widgets
     foreach (var bar in bars)
-        bar.RemoveNetworkService();
+        bar.RemoveServices();
 
     bars.Clear();
 
     networkService?.Dispose();
     audioService?.Dispose();
+    bluetoothService?.Dispose();
     hyprlandService?.Dispose();
 
     UserSettings.Unload();
@@ -73,12 +76,14 @@ void CreateBar(
     Gio.Application sender,
     NetworkService networkService,
     AudioService audioService,
+    BluetoothService bluetoothService,
     HyprlandService hyprlandService
 )
 {
     var window = MainBar.New(
         networkService,
         audioService,
+        bluetoothService,
         hyprlandService,
         BAR_WIDTH,
         BAR_HEIGTH
