@@ -1,6 +1,7 @@
 using Gtk;
 using OvraelShell.InterfaceElements;
 using OvraelShell.Models.Settings;
+using OvraelShell.Models.Settings.Hyprland;
 using OvraelShell.Services;
 using OvraelShell.Utils.Settings;
 

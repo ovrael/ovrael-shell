@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
-using OvraelShell.Enums.Common;
+using OvraelShell.Enums.Settings;
 using OvraelShell.InterfaceElements;
 using OvraelShell.Utils.Theme;
 

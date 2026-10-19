@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OvraelShell.Models.Settings;
+using OvraelShell.Models.Settings.General;
+using OvraelShell.Models.Settings.Hyprland;
 
 namespace OvraelShell.Utils.Settings;
 
@@ -75,11 +77,17 @@ public static class UserSettings
         }
     }
 
-    private static void OnFileChanged(Gio.FileMonitor sender, Gio.FileMonitor.ChangedSignalArgs args)
+    private static void OnFileChanged(
+        Gio.FileMonitor sender,
+        Gio.FileMonitor.ChangedSignalArgs args
+    )
     {
         // ChangesDoneHint - the file is written and closed.
         // Created - an editor that saves to a temporary file and moves it over this one.
-        if (args.EventType is not (Gio.FileMonitorEvent.ChangesDoneHint or Gio.FileMonitorEvent.Created))
+        if (
+            args.EventType
+            is not (Gio.FileMonitorEvent.ChangesDoneHint or Gio.FileMonitorEvent.Created)
+        )
             return;
 
         if (reloadSourceId != 0)
@@ -136,8 +144,7 @@ public static class UserSettings
 
             Console.WriteLine($"Settings: created {FilePath} with the default settings");
         }
-        catch (Exception exception)
-            when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             Console.WriteLine($"Settings: cannot create {FilePath}: {exception.Message}");
         }

@@ -1,7 +1,7 @@
 using System.Globalization;
-using OvraelShell.Enums.Common;
+using OvraelShell.Enums.Settings;
 
-namespace OvraelShell.Models.Settings;
+namespace OvraelShell.Models.Settings.General;
 
 public sealed class GeneralSettings
 {
@@ -15,7 +15,7 @@ public sealed class GeneralSettings
 
     /// <summary>.NET format of <see cref="TimeFormat"/>.</summary>
     public string TimeFormatString =>
-        TimeFormat.Value == Enums.Common.TimeFormat.H12 ? "hh:mm:ss tt" : "HH:mm:ss";
+        TimeFormat.Value == Enums.Settings.TimeFormat.H12 ? "hh:mm:ss tt" : "HH:mm:ss";
 
     /// <summary>.NET format of <see cref="DateFormat"/> - DD-MM-YYYY becomes dd-MM-yyyy.</summary>
     public string DateFormatString => ToDotNetDateFormat(DateFormat.Value);

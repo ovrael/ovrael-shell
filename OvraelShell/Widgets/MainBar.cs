@@ -15,6 +15,7 @@ public partial class MainBar
     private BluetoothService bluetoothService;
     private HyprlandService hyprlandService;
     private NetworkService networkService;
+    private WeatherService weatherService;
 
     private NetworkBarButton networkButton;
     private BluetoothBarButton bluetoothButton;
@@ -24,6 +25,7 @@ public partial class MainBar
         AudioService audioService,
         BluetoothService bluetoothService,
         HyprlandService hyprlandService,
+        WeatherService weatherService,
         int width = 1920,
         int height = 30
     )
@@ -33,6 +35,7 @@ public partial class MainBar
         bar.audioService = audioService;
         bar.bluetoothService = bluetoothService;
         bar.hyprlandService = hyprlandService;
+        bar.weatherService = weatherService;
         bar.CreateLayout();
         bar.SetDefaultSize(width, height);
         bar.AddCssClass("main-bar");
@@ -81,7 +84,7 @@ public partial class MainBar
     {
         var left = Gtk.Box.New(Orientation.Horizontal, 5);
 
-        var weather = WeatherWidget.New();
+        var weather = WeatherBarButton.New(weatherService);
         left.Append(weather);
 
         var workspace = WorkspaceWidget.New(hyprlandService);

@@ -34,15 +34,15 @@ public sealed partial class NetworkBarButton : IWithDisposableService<NetworkSer
     }
 
     [MemberNotNull(nameof(Service))]
-    public void AddService(NetworkService network)
+    public void AddService(NetworkService service)
     {
-        Service = network;
+        Service = service;
 
-        network.IsConnected.Changed += OnConnectionChanged;
-        network.PrimaryConnectionType.Changed += OnConnectionChanged;
+        service.IsConnected.Changed += OnConnectionChanged;
+        service.PrimaryConnectionType.Changed += OnConnectionChanged;
 
-        network.WirelessDevice.Changed += SetWirelessDevice;
-        SetWirelessDevice(network.WirelessDevice.Value);
+        service.WirelessDevice.Changed += SetWirelessDevice;
+        SetWirelessDevice(service.WirelessDevice.Value);
     }
 
     public void RemoveService()

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace OvraelShell.Enums.Common;
+namespace OvraelShell.Enums.Settings;
 
 // Values match the JSON number, so both "24" and 24 read correctly
 public enum TimeFormat

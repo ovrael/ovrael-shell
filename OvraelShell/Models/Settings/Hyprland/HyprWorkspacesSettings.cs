@@ -1,6 +1,6 @@
 using OvraelShell.Utils;
 
-namespace OvraelShell.Models.Settings;
+namespace OvraelShell.Models.Settings.Hyprland;
 
 public sealed class HyprWorkspacesSettings
 {

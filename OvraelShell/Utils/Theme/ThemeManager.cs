@@ -1,4 +1,4 @@
-using OvraelShell.Enums.Common;
+using OvraelShell.Enums.Settings;
 
 namespace OvraelShell.Utils.Theme;
 

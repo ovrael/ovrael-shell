@@ -1,5 +1,5 @@
 ﻿using Gtk;
-using OvraelShell.Enums.Common;
+using OvraelShell.Enums.Settings;
 using OvraelShell.Services;
 using OvraelShell.Utils.Settings;
 using OvraelShell.Utils.Theme;
@@ -19,6 +19,7 @@ NetworkService? networkService = null;
 AudioService? audioService = null;
 BluetoothService? bluetoothService = null;
 HyprlandService? hyprlandService = null;
+WeatherService? weatherService = null;
 
 // Open bars - GetWindows gives a raw GLib list, so they are tracked here
 var bars = new List<MainBar>();
@@ -41,8 +42,16 @@ application.OnActivate += (sender, e) =>
     audioService ??= new AudioService();
     bluetoothService ??= new BluetoothService();
     hyprlandService ??= new HyprlandService();
+    weatherService ??= new WeatherService();
 
-    CreateBar(sender, networkService, audioService, bluetoothService, hyprlandService);
+    CreateBar(
+        sender,
+        networkService,
+        audioService,
+        bluetoothService,
+        hyprlandService,
+        weatherService
+    );
 };
 
 application.OnShutdown += (_, _) =>
@@ -77,7 +86,8 @@ void CreateBar(
     NetworkService networkService,
     AudioService audioService,
     BluetoothService bluetoothService,
-    HyprlandService hyprlandService
+    HyprlandService hyprlandService,
+    WeatherService weatherService
 )
 {
     var window = MainBar.New(
@@ -85,6 +95,7 @@ void CreateBar(
         audioService,
         bluetoothService,
         hyprlandService,
+        weatherService,
         BAR_WIDTH,
         BAR_HEIGTH
     );
