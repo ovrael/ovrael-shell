@@ -29,9 +29,10 @@
 .network-wireless-listitem {
 }
 
-/* Output / Input tabs, New / Known bluetooth tabs - only the open one looks like a button */
+/* Output / Input tabs, New / Known bluetooth tabs, weather locations - only the open one looks like a button */
 .audio-tabs button:not(:checked):not(:hover),
-.bluetooth-tabs button:not(:checked):not(:hover) {
+.bluetooth-tabs button:not(:checked):not(:hover),
+.weather-tabs button:not(:checked):not(:hover) {
   background: transparent;
   color: @foreground;
 }
@@ -92,5 +93,39 @@
 /* "No new devices", "No known devices" in an empty bluetooth tab */
 .bluetooth-empty {
   margin: 12px;
+  opacity: 0.6;
+}
+
+/* Weather: now is the largest, the days are larger than the hours */
+.weather-current-icon {
+  font-size: 56px;
+}
+
+.weather-current-temperature {
+  font-size: 32px;
+}
+
+.weather-hourly {
+  font-size: 11px;
+}
+
+.weather-hourly .weather-cell {
+  min-width: 48px;
+  margin-bottom: 6px; /* Space for the scrollbar */
+}
+
+.weather-hourly .weather-icon {
+  font-size: 16px;
+}
+
+.weather-daily .weather-icon {
+  font-size: 30px;
+}
+
+.weather-daily .weather-temperature {
+  font-size: 18px;
+}
+
+.weather-dim {
   opacity: 0.6;
 }

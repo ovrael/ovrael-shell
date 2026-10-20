@@ -1,64 +1,88 @@
-using Gio;
-using OvraelShell.Enums.Network;
+using OvraelShell.Enums.Settings;
 using OvraelShell.Interfaces;
+using OvraelShell.Models.Weather.OpenMeteo;
 using OvraelShell.Utils;
 
-namespace OvraelShell.Models.Network;
+namespace OvraelShell.Models.Weather;
 
+/// <summary>
+/// A location from the settings and its weather. The coordinates do not change -
+/// other coordinates in the settings make a new object (see WeatherService.SyncLocations).
+/// </summary>
 [GObject.Subclass<GObject.Object>]
-public sealed partial class WeatherLocation
-    : IReactivable<WeatherLocation>,
-        IEquatable<WeatherLocation>
+public sealed partial class WeatherForecast
+    : IReactivable<WeatherForecast>,
+        IEquatable<WeatherForecast>
 {
-    public ReactiveProperty<string?> Name = new();
-    public ReactiveProperty<bool> IsMain = new();
-    public ReactiveProperty<double> Latitude = new();
-    public ReactiveProperty<double> Longitude = new();
+    public double Latitude { get; private set; }
+    public double Longitude { get; private set; }
 
-    public ReactiveProperty<double> Temperature = new();
-    public ReactiveProperty<double> RainChance = new();
+    public ReactiveProperty<string> Name { get; } = new(string.Empty);
 
-    public event Action<WeatherLocation>? OnChange;
+    // Null until the first response
+    public ReactiveProperty<WeatherData?> Current { get; } = new();
+
+    // Starts from the current hour
+    public ReactiveProperty<IReadOnlyList<WeatherData>> Hourly { get; } =
+        new([], SequenceComparer<WeatherData>.Instance);
+
+    // Starts from the current day
+    public ReactiveProperty<IReadOnlyList<WeatherData>> Daily { get; } =
+        new([], SequenceComparer<WeatherData>.Instance);
+
+    public event Action<WeatherForecast>? OnChange;
 
     partial void Initialize()
     {
         Name.Changed += (_) => OnChange?.Invoke(this);
-        IsMain.Changed += (_) => OnChange?.Invoke(this);
-        Latitude.Changed += (_) => OnChange?.Invoke(this);
-        Longitude.Changed += (_) => OnChange?.Invoke(this);
-        Temperature.Changed += (_) => OnChange?.Invoke(this);
-        RainChance.Changed += (_) => OnChange?.Invoke(this);
+        Current.Changed += (_) => OnChange?.Invoke(this);
+        Hourly.Changed += (_) => OnChange?.Invoke(this);
+        Daily.Changed += (_) => OnChange?.Invoke(this);
     }
 
-    /// <summary>Creates a network for an access point, or null for a hidden network (no SSID).</summary>
-    public static WeatherLocation? Create()
+    public static WeatherForecast Create(string name, double latitude, double longitude)
     {
-        var network = NewWithProperties([]);
+        var forecast = NewWithProperties([]);
+        forecast.Latitude = latitude;
+        forecast.Longitude = longitude;
+        forecast.Name.Set(name);
+        return forecast;
+    }
 
-        return network;
+    /// <summary>Takes the weather from the response. A section that is missing keeps the old values.</summary>
+    public void Update(OpenMeteoResponse response, TemperatureUnit unit)
+    {
+        if (response.Current is { } current)
+            Current.Set(WeatherData.FromCurrent(current, unit));
+
+        if (response.Hourly is { } hourly)
+            Hourly.Set(WeatherData.FromHourly(hourly, unit));
+
+        if (response.Daily is { } daily)
+            Daily.Set(WeatherData.FromDaily(daily, unit));
     }
 
     #region Equality
 
-    // Wrappers from GTK models (ListStore, ListItem) are compared by name or localization
+    // Wrappers from GTK models (ListStore, ListItem) are compared by the coordinates -
+    // they do not change, the name can (reverse geocoding)
 
-    public bool Equals(WeatherLocation? other) =>
-        other is not null
-        && (Name == other.Name || (Latitude == other.Latitude && Longitude == other.Longitude));
+    public bool Equals(WeatherForecast? other) =>
+        other is not null && Latitude == other.Latitude && Longitude == other.Longitude;
 
-    public override bool Equals(object? obj) => Equals(obj as WeatherLocation);
+    public override bool Equals(object? obj) => Equals(obj as WeatherForecast);
 
-    public override int GetHashCode() => Name.GetHashCode();
+    public override int GetHashCode() => HashCode.Combine(Latitude, Longitude);
 
-    public static bool operator ==(WeatherLocation? left, WeatherLocation? right) =>
+    public static bool operator ==(WeatherForecast? left, WeatherForecast? right) =>
         left is null ? right is null : left.Equals(right);
 
-    public static bool operator !=(WeatherLocation? left, WeatherLocation? right) =>
+    public static bool operator !=(WeatherForecast? left, WeatherForecast? right) =>
         !(left == right);
 
     #endregion
 
     public override string ToString() =>
-        $"WeatherLocation {{ Name = {Name}, IsMain = {IsMain}, Latitude = {Latitude}, "
-        + $"Longitude = {Longitude}, Temperature = {Temperature}, RainChance = {RainChance}%";
+        $"WeatherForecast {{ Name = {Name}, Latitude = {Latitude}, Longitude = {Longitude}, "
+        + $"Current = {Current}, Hourly = {Hourly.Value.Count}, Daily = {Daily.Value.Count} }}";
 }

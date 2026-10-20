@@ -4,15 +4,10 @@ namespace OvraelShell.Models.Settings.Weather;
 
 public class WeatherSection
 {
-    // "temperatureUnit": "C",
-    // "showLocationName": true,
-    // "autogetLocalizationName": true,
-    // "localizations": [
-
     public string? TemperatureUnit { get; set; } = "C";
     public bool? ShowLocationName { get; set; } = true;
-    public bool? AutogetLocalizationName { get; set; } = true;
-    public List<WeatherLocalizationEntry?>? Localizations { get; set; } =
+    public bool? AutogetLocationName { get; set; } = true;
+    public List<WeatherLocationEntry?>? Locations { get; set; } =
     [
         new()
         {

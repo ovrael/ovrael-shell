@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 using OvraelShell.Enums.Settings;
 
 namespace OvraelShell.Models.Settings.General;
@@ -19,6 +20,13 @@ public sealed class GeneralSettings
 
     /// <summary>.NET format of <see cref="DateFormat"/> - DD-MM-YYYY becomes dd-MM-yyyy.</summary>
     public string DateFormatString => ToDotNetDateFormat(DateFormat.Value);
+
+    /// <summary>
+    /// <see cref="DateFormatString"/> without the year and its separator - dd-MM-yyyy becomes dd-MM,
+    /// yyyy-MM-dd becomes MM-dd. For short dates, like the days of the weather forecast.
+    /// </summary>
+    public string DayMonthFormatString =>
+        Regex.Replace(DateFormatString, "^y+[^dM]*|[^dM]*y+", string.Empty);
 
     /// <summary>Takes the values from the file. An incorrect value is logged and the default is used.</summary>
     internal void Apply(GeneralSection section)

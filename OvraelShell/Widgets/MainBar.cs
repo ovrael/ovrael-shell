@@ -19,6 +19,7 @@ public partial class MainBar
 
     private NetworkBarButton networkButton;
     private BluetoothBarButton bluetoothButton;
+    private WeatherBarButton weatherButton;
 
     public static MainBar New(
         NetworkService networkService,
@@ -65,10 +66,11 @@ public partial class MainBar
     {
         networkButton?.RemoveService();
         bluetoothButton?.RemoveService();
+        weatherButton?.RemoveService();
     }
 
     // Widgets that need the service are created after New has set it
-    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton))]
+    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton), nameof(weatherButton))]
     private void CreateLayout()
     {
         var layout = Gtk.CenterBox.New();
@@ -80,12 +82,13 @@ public partial class MainBar
         SetChild(layout);
     }
 
+    [MemberNotNull(nameof(weatherButton))]
     private void CreateStart(CenterBox layout)
     {
         var left = Gtk.Box.New(Orientation.Horizontal, 5);
 
-        var weather = WeatherBarButton.New(weatherService);
-        left.Append(weather);
+        weatherButton = WeatherBarButton.New(weatherService);
+        left.Append(weatherButton);
 
         var workspace = WorkspaceWidget.New(hyprlandService);
         left.Append(workspace);

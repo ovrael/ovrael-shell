@@ -4,19 +4,22 @@ using System.Text.Json.Serialization;
 using OvraelShell.Models.Settings;
 using OvraelShell.Models.Settings.General;
 using OvraelShell.Models.Settings.Hyprland;
+using OvraelShell.Models.Settings.Weather;
 
 namespace OvraelShell.Utils.Settings;
 
 /// <summary>
-/// User settings from $XDG_CONFIG_HOME/ovraelshell/settings.json. The file is watched -
-/// when it is saved, the values are read again and the changed ones send Changed.
+/// User settings from Data/settings.json in the current directory (the project folder with
+/// `dotnet run`) or, if it does not exist, from $XDG_CONFIG_HOME/ovraelshell/settings.json.
+/// The file is watched - when it is saved, the values are read again and the changed ones send Changed.
 /// </summary>
 public static class UserSettings
 {
     // Saving a file can send more than one event - read the file once, after the last one
     private const uint ReloadDelayMs = 100;
 
-    private static readonly JsonSerializerOptions jsonOptions = new()
+    // Also for the other files in the settings directory - see LocationNamesCache
+    internal static readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
@@ -31,12 +34,19 @@ public static class UserSettings
     private static Gio.FileMonitor? monitor;
     private static uint reloadSourceId;
 
-    public static string FilePath { get; } =
-        Path.Combine(GetConfigDirectory(), "ovraelshell", "settings.json");
+    // Before FilePath - static fields are initialized in this order
+    private static readonly string ProjectFilePath = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "Data",
+        "settings.json"
+    );
+
+    // Chosen once, at the start - a project file created later is used after a restart
+    public static string FilePath { get; } = GetFilePath();
 
     public static GeneralSettings General { get; } = new();
-
     public static HyprWorkspacesSettings HyprWorkspaces { get; } = new();
+    public static WeatherSettings Weather { get; } = new();
 
     /// <summary>
     /// Reads the file (creates it with the defaults if it does not exist) and starts to watch it.
@@ -47,6 +57,7 @@ public static class UserSettings
         if (monitor is not null)
             return;
 
+        PrintSource();
         CreateDefaultFile();
         Reload();
 
@@ -124,10 +135,16 @@ public static class UserSettings
         }
 
         // A literal null in the file - same as an empty object
-        file ??= new SettingsFile { General = null, HyprWorkspaces = null };
+        file ??= new SettingsFile
+        {
+            General = null,
+            HyprWorkspaces = null,
+            Weather = null,
+        };
 
         General.Apply(file.General ?? new GeneralSection());
         HyprWorkspaces.Apply(file.HyprWorkspaces ?? new HyprWorkspacesSection());
+        Weather.Apply(file.Weather ?? new WeatherSection());
 
         Console.WriteLine($"Settings: loaded {FilePath}");
     }
@@ -159,6 +176,25 @@ public static class UserSettings
         CultureInfo.DefaultThreadCurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
+    }
+
+    // The project file is not created with the defaults - only the one in the config directory is
+    private static string GetFilePath()
+    {
+        if (File.Exists(ProjectFilePath))
+            return ProjectFilePath;
+
+        return Path.Combine(GetConfigDirectory(), "ovraelshell", "settings.json");
+    }
+
+    private static void PrintSource()
+    {
+        if (FilePath == ProjectFilePath)
+            Console.WriteLine($"Settings: the project file is used: {FilePath}");
+        else
+            Console.WriteLine(
+                $"Settings: {ProjectFilePath} does not exist, the config directory is used: {FilePath}"
+            );
     }
 
     private static string GetConfigDirectory()

@@ -1,0 +1,78 @@
+{
+    "general": {
+        "languageCode": "pl",
+        "timeFormat": "24",
+        "dateFormat": "DD-MM-YYYY"
+    },
+    "hyprworkspaces": {
+        "workspaces": [
+            {
+                "name": "main",
+                "icon": ""
+            },
+            {
+                "name": "gaming",
+                "icon": ""
+            },
+            {
+                "name": "coding",
+                "icon": ""
+            },
+            {
+                "name": "terminal",
+                "icon": ""
+            },
+            {
+                "name": "media",
+                "icon": ""
+            }
+        ]
+    },
+    "weather": {
+        "temperatureUnit": "C",
+        "showLocationName": true,
+        "autogetLocationName": true,
+        "locations": [
+            {
+                "name": "Katowice",
+                "isMain": true,
+                "latitude": 50.25,
+                "longitude": 19.00
+            },
+            {
+                "name": "",
+                "isMain": false,
+                "latitude": 51.110533,
+                "longitude": 17.034805
+            },
+            {
+                "name": "",
+                "isMain": false,
+                "latitude": 34.06,
+                "longitude": -118.24
+            },
+            {
+                "name": "",
+                "isMain": false,
+                "latitude": -70.943,
+                "longitude": -69.547649
+            },
+            {
+                "name": "",
+                "latitude": 28.54,
+                "longitude": -81.37
+            },
+            {
+                "name": "",
+                "isMain": false,
+                "latitude": -33.87,
+                "longitude": 151.20
+            },
+            {
+                "name": "Gdańsk",
+                "latitude": 54.35,
+                "longitude": 18.65
+            }
+        ]
+    }
+}

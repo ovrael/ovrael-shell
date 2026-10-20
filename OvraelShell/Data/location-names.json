@@ -1,0 +1,28 @@
+{
+    "locations": [
+        {
+            "name": "Wrocław",
+            "language": "pl",
+            "latitude": 51.110533,
+            "longitude": 17.034805
+        },
+        {
+            "name": "Los Angeles",
+            "language": "pl",
+            "latitude": 34.06,
+            "longitude": -118.24
+        },
+        {
+            "name": "Orlando",
+            "language": "pl",
+            "latitude": 28.54,
+            "longitude": -81.37
+        },
+        {
+            "name": "Sydney",
+            "language": "pl",
+            "latitude": -33.87,
+            "longitude": 151.2
+        }
+    ]
+}

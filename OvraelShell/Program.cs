@@ -67,6 +67,7 @@ application.OnShutdown += (_, _) =>
     audioService?.Dispose();
     bluetoothService?.Dispose();
     hyprlandService?.Dispose();
+    weatherService?.Dispose();
 
     UserSettings.Unload();
 };

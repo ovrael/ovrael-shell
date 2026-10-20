@@ -7,18 +7,20 @@ namespace OvraelShell.Models.Settings.Weather;
 
 public sealed class WeatherSettings
 {
+    public const int MaxLocations = 10;
+
     private static readonly WeatherSection defaults = new();
 
     public ReactiveProperty<TemperatureUnit> TemperatureUnit { get; } =
         new(ValidateTemperatureUnit(defaults.TemperatureUnit));
 
     public ReactiveProperty<bool> ShowLocationName { get; } = new(defaults.ShowLocationName!.Value);
-    public ReactiveProperty<bool> AutogetLocalizationName { get; } =
-        new(defaults.AutogetLocalizationName!.Value);
-    public ReactiveProperty<IReadOnlyList<WeatherLocalizationInfo>> Localizations { get; } =
+    public ReactiveProperty<bool> AutogetLocationName { get; } =
+        new(defaults.AutogetLocationName!.Value);
+    public ReactiveProperty<IReadOnlyList<WeatherLocationInfo>> Locations { get; } =
         new(
-            ValidateLocalizations(defaults.Localizations, false),
-            SequenceComparer<WeatherLocalizationInfo>.Instance
+            ValidateLocations(defaults.Locations, false),
+            SequenceComparer<WeatherLocationInfo>.Instance
         );
 
     /// <summary>Takes the values from the file. An incorrect value is logged and the default is used.</summary>
@@ -26,9 +28,9 @@ public sealed class WeatherSettings
     {
         TemperatureUnit.Set(ValidateTemperatureUnit(section.TemperatureUnit));
         ShowLocationName.Set(CommonValidators.ValidateBool(section.ShowLocationName));
-        AutogetLocalizationName.Set(CommonValidators.ValidateBool(section.ShowLocationName));
+        AutogetLocationName.Set(CommonValidators.ValidateBool(section.AutogetLocationName));
 
-        Localizations.Set(ValidateLocalizations(section.Localizations, AutogetLocalizationName));
+        Locations.Set(ValidateLocations(section.Locations, AutogetLocationName.Value));
     }
 
     private static TemperatureUnit ValidateTemperatureUnit(string? temperatureUnit)
@@ -42,79 +44,75 @@ public sealed class WeatherSettings
         return Enums.Settings.TemperatureUnit.C;
     }
 
-    private static IReadOnlyList<WeatherLocalizationInfo> ValidateLocalizations(
-        IEnumerable<WeatherLocalizationEntry?>? entries,
-        bool autogetLocalizationName
+    private static IReadOnlyList<WeatherLocationInfo> ValidateLocations(
+        IEnumerable<WeatherLocationEntry?>? entries,
+        bool autogetLocationName
     )
     {
-        List<WeatherLocalizationInfo> localizations = [];
+        List<WeatherLocationInfo> locations = [];
         if (entries is null || !entries.Any())
-            return localizations;
+            return locations;
 
         int index = 1;
         foreach (var entry in entries)
         {
-            var toAdd = ValidateLocalizationEntry(entry, index, autogetLocalizationName);
-            if (toAdd is not null)
-                localizations.Add(toAdd);
+            var toAdd = ValidateLocationEntry(entry, index, autogetLocationName);
+            if (toAdd is null)
+            {
+                Console.WriteLine($"Invalid location entry with index: {index - 1}");
+            }
+            else if (locations.Count == MaxLocations)
+            {
+                Console.WriteLine(
+                    $"Weather: more than {MaxLocations} locations, the entry with index {index - 1} is ignored"
+                );
+            }
             else
             {
-                Console.WriteLine($"Invalid localization with index: {index - 1}");
+                locations.Add(toAdd);
             }
 
             index++;
         }
-        return localizations;
+        return locations;
     }
 
-    private static WeatherLocalizationInfo? ValidateLocalizationEntry(
-        WeatherLocalizationEntry? entry,
+    private static WeatherLocationInfo? ValidateLocationEntry(
+        WeatherLocationEntry? entry,
         int index,
-        bool autogetLocalizationName
+        bool autogetLocationName
     )
     {
         if (entry is null)
             return null;
 
-        var coordinates = ValidateLocalization(entry);
+        var coordinates = ValidateLocation(entry);
         if (coordinates is null)
             return null;
 
-        string name = string.Empty;
-        if (string.IsNullOrEmpty(entry.Name))
-        {
-            name = autogetLocalizationName
-                ? GetLocalizationName(coordinates.Value.latitude, coordinates.Value.longitude)
-                : $"Localization #{index}";
-        }
-        else
-        {
-            name = entry.Name;
-        }
-
-        return new(
-            name,
+        WeatherLocationInfo info = new(
+            entry.Name ?? string.Empty,
             CommonValidators.ValidateBool(entry.IsMain),
             coordinates.Value.latitude,
-            coordinates.Value.longitude
+            coordinates.Value.longitude,
+            index
         );
+
+        // An empty name stays empty - WeatherService finds it from the coordinates.
+        // It is a network request, so it is not done here, on each reload of the file.
+        return info.Name.Length == 0 && !autogetLocationName
+            ? info with { Name = info.DefaultName }
+            : info;
     }
 
-    private static string GetLocalizationName(double latitude, double longitude)
-    {
-        return "";
-    }
-
-    private static (double latitude, double longitude)? ValidateLocalization(
-        WeatherLocalizationEntry entry
-    )
+    private static (double latitude, double longitude)? ValidateLocation(WeatherLocationEntry entry)
     {
         if (entry.Latitude is null || entry.Longitude is null)
             return null;
 
         if (
-            entry.Latitude < -180
-            || entry.Latitude > 180
+            entry.Latitude < -90
+            || entry.Latitude > 90
             || entry.Longitude < -180
             || entry.Longitude > 180
         )

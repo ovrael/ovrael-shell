@@ -91,4 +91,27 @@ public static class Icons
     {
         public static readonly string Other = "?";
     }
+
+    public static class Weather
+    {
+        public static readonly string Other = "?";
+
+        // nf_weather_
+        public static readonly string cloudyFull = "";
+        public static readonly string precipitationProbability = "";
+
+        // DAY
+        public static readonly string daySun = "";
+        public static readonly string dayCloudyMid = "";
+        public static readonly string dayRain = "";
+        public static readonly string daySnow = "";
+        public static readonly string dayThunderstorm = "";
+
+        // NIGHT
+        public static readonly string nightMoon = "";
+        public static readonly string nightCloudyMid = "";
+        public static readonly string nightRain = "";
+        public static readonly string nightSnow = "";
+        public static readonly string nightThunderstorm = "";
+    }
 }
