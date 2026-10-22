@@ -133,3 +133,36 @@
 .weather-dim {
   opacity: 0.6;
 }
+
+/* Weather icons - for the dark background of the popover */
+.weather-sun {
+  color: #F5C451;
+}
+
+.weather-moon {
+  color: #C9D1E6;
+}
+
+.weather-cloud-mid {
+  color: #D6CB96;
+}
+
+.weather-cloud-mid-night {
+  color: #A9B2C6;
+}
+
+.weather-cloud-full {
+  color: #98A2AE;
+}
+
+.weather-rain {
+  color: #7DB4F7;
+}
+
+.weather-snow {
+  color: #E6F0FA;
+}
+
+.weather-thunderstorm {
+  color: #B28CF5;
+}

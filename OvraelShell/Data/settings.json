@@ -30,7 +30,7 @@
     },
     "weather": {
         "temperatureUnit": "C",
-        "showLocationName": true,
+        "showLocationName": false,
         "autogetLocationName": true,
         "locations": [
             {

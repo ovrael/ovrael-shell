@@ -17,7 +17,9 @@ public sealed record WeatherData(
     TemperatureUnit Unit
 )
 {
-    public string Icon => GetIcon(Code, IsDay);
+    public string Icon => GetIcon(Code, IsDay).Icon;
+
+    public string IconCssClass => GetIcon(Code, IsDay).CssClass;
 
     public string UnitSymbol => Unit == TemperatureUnit.F ? "°F" : "°C";
 
@@ -75,22 +77,27 @@ public sealed record WeatherData(
         where T : struct => values is not null && index < values.Count ? values[index] : null;
 
     // WMO weather interpretation codes - see "Weather variable documentation" on open-meteo.com
-    private static string GetIcon(int? code, bool isDay) =>
+    // The CSS class gives the icon its color - see 020_Main.gtk.css
+    private static (string Icon, string CssClass) GetIcon(int? code, bool isDay) =>
         code switch
         {
-            0 => isDay ? Icons.Weather.daySun : Icons.Weather.nightMoon,
-            1 or 2 => isDay ? Icons.Weather.dayCloudyMid : Icons.Weather.nightCloudyMid,
-            3 or 45 or 48 => Icons.Weather.cloudyFull,
+            0 => isDay
+                ? (Icons.Weather.daySun, "weather-sun")
+                : (Icons.Weather.nightMoon, "weather-moon"),
+            1 or 2 => isDay
+                ? (Icons.Weather.dayCloudyMid, "weather-cloud-mid")
+                : (Icons.Weather.nightCloudyMid, "weather-cloud-mid-night"),
+            3 or 45 or 48 => (Icons.Weather.cloudyFull, "weather-cloud-full"),
             (>= 51 and <= 67) or (>= 80 and <= 82) => isDay
-                ? Icons.Weather.dayRain
-                : Icons.Weather.nightRain,
+                ? (Icons.Weather.dayRain, "weather-rain")
+                : (Icons.Weather.nightRain, "weather-rain"),
             (>= 71 and <= 77) or 85 or 86 => isDay
-                ? Icons.Weather.daySnow
-                : Icons.Weather.nightSnow,
+                ? (Icons.Weather.daySnow, "weather-snow")
+                : (Icons.Weather.nightSnow, "weather-snow"),
             >= 95 and <= 99 => isDay
-                ? Icons.Weather.dayThunderstorm
-                : Icons.Weather.nightThunderstorm,
-            _ => Icons.Weather.Other,
+                ? (Icons.Weather.dayThunderstorm, "weather-thunderstorm")
+                : (Icons.Weather.nightThunderstorm, "weather-thunderstorm"),
+            _ => (Icons.Weather.Other, "weather-unknown"),
         };
 
     public override string ToString() =>

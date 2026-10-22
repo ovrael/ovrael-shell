@@ -104,6 +104,9 @@ public sealed class WeatherLocationPage : IDisposable
         // No response yet
         emptyLabel.Visible = current is null;
         currentIcon.SetLabel(current?.Icon ?? Icons.Weather.Other);
+        currentIcon.SetCssClasses(
+            current is null ? ["weather-current-icon"] : ["weather-current-icon", current.IconCssClass]
+        );
         currentTemperature.SetLabel(current is null ? string.Empty : FormatTemperature(current));
         currentPrecipitation.SetLabel(current is null ? string.Empty : FormatPrecipitation(current));
 
@@ -159,6 +162,7 @@ public sealed class WeatherLocationPage : IDisposable
 
         var icon = Label.New(data.Icon);
         icon.AddCssClass("weather-icon");
+        icon.AddCssClass(data.IconCssClass);
         cell.Append(icon);
 
         var temperature = Label.New(FormatTemperature(data));
