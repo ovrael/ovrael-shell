@@ -106,16 +106,20 @@
 }
 
 .weather-hourly {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .weather-hourly .weather-cell {
-  min-width: 48px;
+  min-width: 58px;
   margin-bottom: 6px; /* Space for the scrollbar */
 }
 
 .weather-hourly .weather-icon {
-  font-size: 16px;
+  font-size: 22px;
+}
+
+.weather-hourly .weather-temperature {
+  font-size: 15px;
 }
 
 .weather-daily .weather-icon {

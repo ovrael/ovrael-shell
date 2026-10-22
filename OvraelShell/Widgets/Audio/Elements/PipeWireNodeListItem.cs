@@ -181,7 +181,9 @@ public sealed partial class PipeWireNodeListItem
 
         iconLabel.SetLabel(AudioIcons.Node(node.MediaClass));
         nameLabel.SetLabel(node.DisplayName);
-        detailsLabel.SetLabel(DetailsOf(node, service));
+        var details = DetailsOf(node, service);
+        detailsLabel.SetLabel(details);
+        detailsLabel.Visible = details.Length > 0;
         UpdateVolume(node, service);
         UpdateTarget(node, service);
 
@@ -341,7 +343,10 @@ public sealed partial class PipeWireNodeListItem
         return factory;
     }
 
-    /// <summary>What the node is and what it is linked to - e.g. "Playback → Built-in audio".</summary>
+    /// <summary>
+    /// What the node is and how many streams it has - e.g. "Output · 2 playing". Empty for the
+    /// streams - their drop-down shows what they are linked to.
+    /// </summary>
     private static string DetailsOf(PipeWireNode node, AudioService service) =>
         node.MediaClass switch
         {
@@ -351,16 +356,8 @@ public sealed partial class PipeWireNodeListItem
                 service.OutputsOf(node),
                 "recording"
             ),
-            PipeWireMediaTypes.StreamOutputAudio => WithTargets(
-                "Playback",
-                "→",
-                service.OutputsOf(node)
-            ),
-            PipeWireMediaTypes.StreamInputAudio => WithTargets(
-                "Recording",
-                "←",
-                service.InputsOf(node)
-            ),
+            PipeWireMediaTypes.StreamOutputAudio or PipeWireMediaTypes.StreamInputAudio =>
+                string.Empty,
             _ => node.MediaClass ?? string.Empty,
         };
 
@@ -368,11 +365,5 @@ public sealed partial class PipeWireNodeListItem
     {
         var count = linked.Count();
         return count == 0 ? kind : $"{kind} · {count} {what}";
-    }
-
-    private static string WithTargets(string kind, string arrow, IEnumerable<PipeWireNode> linked)
-    {
-        var names = string.Join(", ", linked.Select(target => target.DisplayName));
-        return names.Length == 0 ? kind : $"{kind} {arrow} {names}";
     }
 }
