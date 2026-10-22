@@ -1,21 +1,20 @@
-using OvraelShell.Enums.Network;
 using OvraelShell.Models.Audio.PipeWire;
-using OvraelShell.Models.Network;
 
 namespace OvraelShell.InterfaceElements;
 
 public static class AudioIcons
 {
-    public static string Volume(uint volume, bool isMuted)
+    /// <param name="percent">On the scale of the sliders, 0-100.</param>
+    public static string Volume(uint percent, bool isMuted)
     {
         if (isMuted)
             return Icons.Audio.VolumeOff;
 
-        return AudioDevice.VolumeLevelOf(volume) switch
+        return percent switch
         {
-            0 => Icons.Audio.VolumeLow,
-            1 => Icons.Audio.VolumeLow,
-            2 => Icons.Audio.VolumeMedium,
+            0 => Icons.Audio.VolumeNone,
+            < 30 => Icons.Audio.VolumeLow,
+            < 70 => Icons.Audio.VolumeMedium,
             _ => Icons.Audio.VolumeHigh,
         };
     }

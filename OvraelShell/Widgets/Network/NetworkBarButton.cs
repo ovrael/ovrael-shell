@@ -1,9 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
-using OvraelShell.Models.Network;
 using OvraelShell.Services;
-using OvraelShell.Utils;
 
 namespace OvraelShell.Widgets.Network;
 
@@ -13,7 +11,6 @@ public sealed partial class NetworkBarButton : IWithDisposableService<NetworkSer
     public NetworkService Service { get; private set; }
     private Button button;
     private NetworkPopover popover;
-    private WirelessNetwork? activeNetwork;
 
     public static NetworkBarButton New(NetworkService network)
     {
@@ -39,23 +36,14 @@ public sealed partial class NetworkBarButton : IWithDisposableService<NetworkSer
         Service = service;
 
         service.IsConnected.Changed += OnConnectionChanged;
-        service.PrimaryConnectionType.Changed += OnConnectionChanged;
-
-        service.WirelessDevice.Changed += SetWirelessDevice;
-        SetWirelessDevice(service.WirelessDevice.Value);
+        service.IsWireless.Changed += OnConnectionChanged;
+        UpdateLabel();
     }
 
     public void RemoveService()
     {
         Service.IsConnected.Changed -= OnConnectionChanged;
-        Service.PrimaryConnectionType.Changed -= OnConnectionChanged;
-        Service.WirelessDevice.Changed -= SetWirelessDevice;
-
-        // The device and its networks belong to the service too
-        wirelessDevice?.ActiveNetwork.Changed -= SetActiveNetwork;
-        wirelessDevice = null;
-        activeNetwork?.Strength.Changed -= OnStrengthChanged;
-        activeNetwork = null;
+        Service.IsWireless.Changed -= OnConnectionChanged;
 
         popover.RemoveService();
     }
@@ -69,37 +57,9 @@ public sealed partial class NetworkBarButton : IWithDisposableService<NetworkSer
         button.OnClicked += (_, _) => popover.Popup();
     }
 
-    #region Wireless device
-
-    private WirelessDevice? wirelessDevice;
-
-    private void SetWirelessDevice(WirelessDevice? device)
-    {
-        wirelessDevice?.ActiveNetwork.Changed -= SetActiveNetwork;
-        wirelessDevice = device;
-        wirelessDevice?.ActiveNetwork.Changed += SetActiveNetwork;
-
-        SetActiveNetwork(wirelessDevice?.ActiveNetwork.Value);
-    }
-
-    private void SetActiveNetwork(WirelessNetwork? network)
-    {
-        activeNetwork?.Strength.Changed -= OnStrengthChanged;
-        activeNetwork = network;
-        activeNetwork?.Strength.Changed += OnStrengthChanged;
-
-        UpdateLabel();
-    }
-
-    private void OnStrengthChanged(byte _) => UpdateLabel();
-
-    #endregion
-
     private void UpdateLabel()
     {
-        var isWifi =
-            Service.PrimaryConnectionType.Value == NetworkManagerBus.WirelessConnectionType;
-        var icon = NetworkIcons.Connection(Service.IsConnected, isWifi);
+        var icon = NetworkIcons.Connection(Service.IsConnected, Service.IsWireless);
 
         button.SetLabel(icon);
     }

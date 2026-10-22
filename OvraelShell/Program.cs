@@ -74,14 +74,6 @@ application.OnShutdown += (_, _) =>
 
 return application.RunWithSynchronizationContext(null);
 
-async System.Threading.Tasks.Task ChangeTheme(ThemeScheme newTheme, int delay, string text)
-{
-    await System.Threading.Tasks.Task.Delay(delay);
-
-    System.Console.WriteLine(text);
-    ThemeManager.ChangeTheme(newTheme);
-}
-
 void CreateBar(
     Gio.Application sender,
     NetworkService networkService,

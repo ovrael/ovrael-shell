@@ -28,6 +28,7 @@ public static class NetworkManagerBus
     public const string SettingsConnectionInterface = $"{SettingsInterface}.Connection";
 
     public const string WirelessConnectionType = "802-11-wireless";
+    public const string EthernetConnectionType = "802-3-ethernet";
 
     /// <summary>Calls a method on the main NetworkManager object. Takes ownership of the arguments.</summary>
     public static void Call(string method, params Variant[] arguments)

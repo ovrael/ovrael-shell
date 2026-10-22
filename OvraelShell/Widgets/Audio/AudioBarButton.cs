@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
+using OvraelShell.Models.Audio.PipeWire;
 using OvraelShell.Services;
 
 namespace OvraelShell.Widgets.Audio;
@@ -10,7 +11,10 @@ public sealed partial class AudioBarButton : IWithDisposableService<AudioService
 {
     private Button button;
     private AudioPopover popover;
-    public AudioService Service { get; set; }
+    public AudioService Service { get; private set; }
+
+    // The default output - followed for its volume and mute, see SetOutput
+    private PipeWireNode? output;
 
     public static AudioBarButton New(AudioService audio)
     {
@@ -34,10 +38,18 @@ public sealed partial class AudioBarButton : IWithDisposableService<AudioService
     public void AddService(AudioService audio)
     {
         Service = audio;
+
+        Service.DefaultOutput.Changed += SetOutput;
+        SetOutput(Service.DefaultOutput.Value);
     }
 
+    // Safe to call more than once
     public void RemoveService()
     {
+        Service.DefaultOutput.Changed -= SetOutput;
+
+        // The node belongs to the service too
+        SetOutput(null);
         popover.RemoveService();
     }
 
@@ -48,16 +60,35 @@ public sealed partial class AudioBarButton : IWithDisposableService<AudioService
         button.OnClicked += (_, _) => popover.Popup();
     }
 
-    private void OnVolumeChanged(byte _) => UpdateLabel();
+    // OnChange, not Volume.Changed - the first volume can equal the default (0),
+    // and HasVolume still changes then
+    private void SetOutput(PipeWireNode? node)
+    {
+        output?.OnChange -= OnOutputChanged;
+        output = node;
+        output?.OnChange += OnOutputChanged;
+
+        UpdateLabel();
+    }
+
+    private void OnOutputChanged(PipeWireNode _) => UpdateLabel();
 
     private void UpdateLabel()
     {
-        if (Service.ActiveDevice.Value is null)
+        // No default output, or its volume is not known yet
+        if (output is not { HasVolume: true })
+        {
+            button.SetLabel(Icons.Audio.VolumeOff);
+            button.SetTooltipText(output is null ? "No output" : output.DisplayName);
             return;
+        }
 
-        var isMuted = Service.ActiveDevice.Value.IsMuted;
-        var icon = AudioIcons.Volume(Service.ActiveDevice.Value.Volume, isMuted);
+        // The same scale as the sliders in the popover
+        var percent = (uint)Math.Round(output.Volume.Value * 100);
 
-        button.SetLabel(icon);
+        button.SetLabel(AudioIcons.Volume(percent, output.IsMuted.Value));
+        button.SetTooltipText(
+            $"{output.DisplayName}: {(output.IsMuted.Value ? "muted" : $"{percent}%")}"
+        );
     }
 }

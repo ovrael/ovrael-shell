@@ -1,5 +1,4 @@
 using System.Text.Json;
-using OvraelShell.Interfaces;
 using OvraelShell.Models;
 using OvraelShell.Models.Audio.PipeWire;
 
@@ -39,9 +38,8 @@ public sealed class AudioService : IDisposable
     private string? defaultSinkName;
     private string? defaultSourceName;
 
-    public ReactiveProperty<AudioDevice?> ActiveDevice { get; set; } = new();
-
-    public event Action<AudioService>? OnChange;
+    /// <summary>The default output (sink). Null until WirePlumber names it and its node exists.</summary>
+    public ReactiveProperty<PipeWireNode?> DefaultOutput { get; } = new();
 
     public AudioService()
     {
@@ -311,6 +309,7 @@ public sealed class AudioService : IDisposable
 
             case DefaultSinkKey:
                 defaultSinkName = NameFromJson(value);
+                UpdateDefaultOutput();
                 NotifyStreams();
                 break;
 
@@ -340,9 +339,20 @@ public sealed class AudioService : IDisposable
 
     private void OnTargetsChanged(PipeWireNode node)
     {
-        if (node.MediaClass is PipeWireMediaTypes.AudioSink or PipeWireMediaTypes.AudioSource)
-            NotifyStreams();
+        if (node.MediaClass is not (PipeWireMediaTypes.AudioSink or PipeWireMediaTypes.AudioSource))
+            return;
+
+        // The metadata can name the default output before its node is added
+        UpdateDefaultOutput();
+        NotifyStreams();
     }
+
+    private void UpdateDefaultOutput() =>
+        DefaultOutput.Set(
+            Nodes.Items.FirstOrDefault(node =>
+                node.MediaClass == PipeWireMediaTypes.AudioSink && node.Name == defaultSinkName
+            )
+        );
 
     private void NotifyStreams()
     {
