@@ -7,7 +7,7 @@ using OvraelShell.Services;
 using OvraelShell.Utils;
 using OvraelShell.Widgets.Weather.Elements;
 
-namespace OvraelShell.Widgets.Network;
+namespace OvraelShell.Widgets.Weather;
 
 [GObject.Subclass<Gtk.Popover>]
 public sealed partial class WeatherPopover : IWithDisposableService<WeatherService>

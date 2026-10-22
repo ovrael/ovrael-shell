@@ -4,6 +4,7 @@ using OvraelShell.Services;
 using OvraelShell.Widgets.Audio;
 using OvraelShell.Widgets.Bluetooth;
 using OvraelShell.Widgets.Network;
+using OvraelShell.Widgets.Weather;
 
 namespace OvraelShell.Widgets;
 
@@ -19,6 +20,7 @@ public partial class MainBar
 
     private NetworkBarButton networkButton;
     private BluetoothBarButton bluetoothButton;
+    private AudioBarButton audioButton;
     private WeatherBarButton weatherButton;
 
     public static MainBar New(
@@ -66,11 +68,17 @@ public partial class MainBar
     {
         networkButton?.RemoveService();
         bluetoothButton?.RemoveService();
+        audioButton?.RemoveService();
         weatherButton?.RemoveService();
     }
 
     // Widgets that need the service are created after New has set it
-    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton), nameof(weatherButton))]
+    [MemberNotNull(
+        nameof(networkButton),
+        nameof(bluetoothButton),
+        nameof(audioButton),
+        nameof(weatherButton)
+    )]
     private void CreateLayout()
     {
         var layout = Gtk.CenterBox.New();
@@ -106,7 +114,7 @@ public partial class MainBar
         layout.SetCenterWidget(center);
     }
 
-    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton))]
+    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton), nameof(audioButton))]
     private void CreateEnd(CenterBox layout)
     {
         var end = Gtk.Box.New(Orientation.Horizontal, 5);
@@ -114,8 +122,8 @@ public partial class MainBar
         bluetoothButton = BluetoothBarButton.New(bluetoothService);
         end.Append(bluetoothButton);
 
-        var audio = AudioBarButton.New(audioService);
-        end.Append(audio);
+        audioButton = AudioBarButton.New(audioService);
+        end.Append(audioButton);
 
         networkButton = NetworkBarButton.New(networkService);
         end.Append(networkButton);

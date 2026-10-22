@@ -6,7 +6,7 @@ using OvraelShell.Services;
 using OvraelShell.Utils;
 using OvraelShell.Utils.Settings;
 
-namespace OvraelShell.Widgets.Network;
+namespace OvraelShell.Widgets.Weather;
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class WeatherBarButton : IWithDisposableService<WeatherService>
