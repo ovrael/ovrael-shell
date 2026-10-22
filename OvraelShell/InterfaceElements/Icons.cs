@@ -45,7 +45,8 @@ public static class Icons
         public static readonly string Input = "󰍬";
         public static readonly string InputMuted = "󰍭";
         public static readonly string Stream = "󰝚";
-        public static readonly string MoveStreamsHere = "󰓾";
+        public static readonly string IsDefault = "󰓎";
+        public static readonly string SetDefault = "󰓒";
     }
 
     public static class Bluetooth

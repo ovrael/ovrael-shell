@@ -26,8 +26,8 @@ public sealed partial class PipeWireNodeListItem
     private Button muteButton;
     private Scale volumeScale;
 
-    // Outputs and inputs only - moves all streams of their direction to them
-    private Button moveStreamsButton;
+    // Outputs and inputs only - makes them the default, the streams follow
+    private Button defaultButton;
 
     // Set while the slider is moved from code, so it does not set the volume back
     private bool updatingVolume;
@@ -68,7 +68,7 @@ public sealed partial class PipeWireNodeListItem
         nameof(volumeRow),
         nameof(muteButton),
         nameof(volumeScale),
-        nameof(moveStreamsButton),
+        nameof(defaultButton),
         nameof(targetDropDown)
     )]
     private void AppendContent()
@@ -103,14 +103,14 @@ public sealed partial class PipeWireNodeListItem
         volumeScale.CanTarget = false;
         volumeScale.Focusable = false;
 
-        moveStreamsButton = Button.NewWithLabel(Icons.Audio.MoveStreamsHere);
-        moveStreamsButton.SetCursor(Cursors.Pointer);
-        moveStreamsButton.OnClicked += (_, _) => OnMoveStreamsClicked();
+        defaultButton = Button.NewWithLabel(Icons.Audio.SetDefault);
+        defaultButton.SetCursor(Cursors.Pointer);
+        defaultButton.OnClicked += (_, _) => OnDefaultClicked();
 
         volumeRow = Box.New(Orientation.Horizontal, 6);
         volumeRow.Append(muteButton);
         volumeRow.Append(volumeScale);
-        volumeRow.Append(moveStreamsButton);
+        volumeRow.Append(defaultButton);
         volumeRow.Visible = false;
 
         targetDropDown = DropDown.NewFromStrings([]);
@@ -182,7 +182,7 @@ public sealed partial class PipeWireNodeListItem
         iconLabel.SetLabel(AudioIcons.Node(node.MediaClass));
         nameLabel.SetLabel(node.DisplayName);
         detailsLabel.SetLabel(DetailsOf(node, service));
-        UpdateVolume(node);
+        UpdateVolume(node, service);
         UpdateTarget(node, service);
 
         TooltipText = string.Join(
@@ -199,7 +199,7 @@ public sealed partial class PipeWireNodeListItem
         );
     }
 
-    private void UpdateVolume(PipeWireNode node)
+    private void UpdateVolume(PipeWireNode node, AudioService service)
     {
         volumeRow.Visible = node.HasVolume;
 
@@ -217,11 +217,7 @@ public sealed partial class PipeWireNodeListItem
         );
         muteButton.TooltipText = node.IsMuted ? "Unmute" : "Mute";
 
-        moveStreamsButton.Visible = !AudioService.IsStream(node);
-        moveStreamsButton.TooltipText =
-            node.MediaClass == PipeWireMediaTypes.AudioSource
-                ? "Record all streams from this device"
-                : "Play all streams on this device";
+        UpdateDefault(node, service);
 
         if (Environment.TickCount64 - lastUserChange < UserChangeHoldMs)
             return;
@@ -240,10 +236,25 @@ public sealed partial class PipeWireNodeListItem
         service.SetVolume(node, volumeScale.GetValue() / 100);
     }
 
-    private void OnMoveStreamsClicked()
+    private void UpdateDefault(PipeWireNode node, AudioService service)
+    {
+        defaultButton.Visible = !AudioService.IsStream(node);
+
+        var isDefault = service.IsDefault(node);
+        var device = node.MediaClass == PipeWireMediaTypes.AudioSource ? "input" : "output";
+
+        defaultButton.SetLabel(isDefault ? Icons.Audio.IsDefault : Icons.Audio.SetDefault);
+
+        // On the default one it moves back the streams that were moved away
+        defaultButton.TooltipText = isDefault
+            ? $"Default {device} - click to move all streams here"
+            : $"Set as default {device} - all streams move here, new ones too";
+    }
+
+    private void OnDefaultClicked()
     {
         if (node is not null)
-            service?.MoveStreamsTo(node);
+            service?.SetDefault(node);
     }
 
     private void OnMuteClicked()

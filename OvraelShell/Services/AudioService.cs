@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using OvraelShell.Models;
 using OvraelShell.Models.Audio.PipeWire;
 
@@ -29,6 +30,10 @@ public sealed class AudioService : IDisposable
     private const string DefaultSinkKey = "default.audio.sink";
     private const string DefaultSourceKey = "default.audio.source";
 
+    // Set by the user - WirePlumber picks default.audio.* from it and its earlier values
+    private const string DefaultConfiguredSinkKey = "default.configured.audio.sink";
+    private const string DefaultConfiguredSourceKey = "default.configured.audio.source";
+
     private PipeWireMetadata? defaultMetadata;
 
     // target.object of streams by stream id - a serial or a name of the node
@@ -40,6 +45,12 @@ public sealed class AudioService : IDisposable
 
     /// <summary>The default output (sink). Null until WirePlumber names it and its node exists.</summary>
     public ReactiveProperty<PipeWireNode?> DefaultOutput { get; } = new();
+
+    /// <summary>The default input (source). Null until WirePlumber names it and its node exists.</summary>
+    public ReactiveProperty<PipeWireNode?> DefaultInput { get; } = new();
+
+    public bool IsDefault(PipeWireNode node) =>
+        node == DefaultOutput.Value || node == DefaultInput.Value;
 
     public AudioService()
     {
@@ -309,12 +320,13 @@ public sealed class AudioService : IDisposable
 
             case DefaultSinkKey:
                 defaultSinkName = NameFromJson(value);
-                UpdateDefaultOutput();
+                UpdateDefaults();
                 NotifyStreams();
                 break;
 
             case DefaultSourceKey:
                 defaultSourceName = NameFromJson(value);
+                UpdateDefaults();
                 NotifyStreams();
                 break;
         }
@@ -342,17 +354,33 @@ public sealed class AudioService : IDisposable
         if (node.MediaClass is not (PipeWireMediaTypes.AudioSink or PipeWireMediaTypes.AudioSource))
             return;
 
-        // The metadata can name the default output before its node is added
-        UpdateDefaultOutput();
+        // The metadata can name a default device before its node is added
+        UpdateDefaults();
         NotifyStreams();
     }
 
-    private void UpdateDefaultOutput() =>
-        DefaultOutput.Set(
-            Nodes.Items.FirstOrDefault(node =>
-                node.MediaClass == PipeWireMediaTypes.AudioSink && node.Name == defaultSinkName
-            )
-        );
+    private void UpdateDefaults()
+    {
+        SetDefaultNode(DefaultOutput, PipeWireMediaTypes.AudioSink, defaultSinkName);
+        SetDefaultNode(DefaultInput, PipeWireMediaTypes.AudioSource, defaultSourceName);
+    }
+
+    // The rows of both nodes show which one is the default
+    private void SetDefaultNode(
+        ReactiveProperty<PipeWireNode?> property,
+        string mediaClass,
+        string? name
+    )
+    {
+        var previous = property.Value;
+        var node = Nodes.Items.FirstOrDefault(n => n.MediaClass == mediaClass && n.Name == name);
+
+        if (!property.Set(node))
+            return;
+
+        previous?.NotifyChanged();
+        node?.NotifyChanged();
+    }
 
     private void NotifyStreams()
     {
@@ -424,15 +452,37 @@ public sealed class AudioService : IDisposable
     }
 
     /// <summary>
-    /// Moves every stream of the same direction to <paramref name="target"/> -
-    /// all playback to an output, or all recording from an input.
+    /// Makes the output (or input) the default - for new streams too, and after a restart.
+    /// WirePlumber keeps the earlier choices and goes back to them (or to any available device)
+    /// when this one is gone. The streams of its direction follow it - their own targets are
+    /// cleared, and WirePlumber forgets them for their applications.
     /// </summary>
-    public void MoveStreamsTo(PipeWireNode target)
+    public void SetDefault(PipeWireNode device)
     {
+        if (defaultMetadata is null || device.Name is null)
+        {
+            Console.WriteLine($"Cannot make {device.DisplayName} the default - no default metadata");
+            return;
+        }
+
+        var key =
+            device.MediaClass == PipeWireMediaTypes.AudioSource
+                ? DefaultConfiguredSourceKey
+                : DefaultConfiguredSinkKey;
+
+        // The same as wpctl set-default
+        defaultMetadata.SetProperty(
+            0,
+            key,
+            "Spa:String:JSON",
+            new JsonObject { ["name"] = device.Name }.ToJsonString()
+        );
+
+        // Also the streams without target.object - an old target.node would keep them
         foreach (var stream in Nodes.Items.Where(IsStream).ToList())
         {
-            if (TargetsFor(stream).Contains(target))
-                SetTarget(stream, target);
+            if (TargetsFor(stream).Contains(device))
+                SetTarget(stream, null);
         }
     }
 
