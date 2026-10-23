@@ -5,7 +5,7 @@ using OvraelShell.Models.Settings.Hyprland;
 using OvraelShell.Services;
 using OvraelShell.Utils.Settings;
 
-namespace OvraelShell.Widgets;
+namespace OvraelShell.Widgets.Simple;
 
 /// <summary>
 /// The workspaces from the settings - their icons, and the name of the active one.

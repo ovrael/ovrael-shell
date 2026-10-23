@@ -4,6 +4,7 @@ using OvraelShell.Services;
 using OvraelShell.Widgets.Audio;
 using OvraelShell.Widgets.Bluetooth;
 using OvraelShell.Widgets.Network;
+using OvraelShell.Widgets.Simple;
 using OvraelShell.Widgets.Weather;
 
 namespace OvraelShell.Widgets;
@@ -97,6 +98,9 @@ public partial class MainBar
 
         weatherButton = WeatherBarButton.New(weatherService);
         left.Append(weatherButton);
+
+        var caffeine = CaffeineWidget.New();
+        left.Append(caffeine);
 
         var workspace = WorkspaceWidget.New(hyprlandService);
         left.Append(workspace);

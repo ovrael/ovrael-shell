@@ -4,7 +4,7 @@ using OvraelShell.Enums.Settings;
 using OvraelShell.InterfaceElements;
 using OvraelShell.Utils.Theme;
 
-namespace OvraelShell.Widgets;
+namespace OvraelShell.Widgets.Simple;
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class ThemeChangerWidget

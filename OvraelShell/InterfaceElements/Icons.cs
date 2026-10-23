@@ -88,6 +88,12 @@ public static class Icons
         ];
     }
 
+    public static class Caffeine
+    {
+        public static readonly string Awake = "󰅶";
+        public static readonly string Sleep = "󰒲";
+    }
+
     public static class Workspace
     {
         public static readonly string Other = "?";
