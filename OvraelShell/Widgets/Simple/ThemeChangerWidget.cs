@@ -6,18 +6,14 @@ using OvraelShell.Utils.Theme;
 
 namespace OvraelShell.Widgets.Simple;
 
+/// <summary>
+/// Shows the theme and changes it on click: dark, light, system. Only a shortcut - the theme
+/// comes from settings.json, and a change of the theme there replaces the one chosen here.
+/// </summary>
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class ThemeChangerWidget
 {
     private Button button;
-
-    private int schemeIndex = 1;
-    private readonly ThemeScheme[] schemes =
-    [
-        ThemeScheme.Dark,
-        ThemeScheme.Light,
-        ThemeScheme.Auto,
-    ];
 
     public static ThemeChangerWidget New()
     {
@@ -29,38 +25,40 @@ public sealed partial class ThemeChangerWidget
     {
         SetOrientation(Orientation.Horizontal);
 
-        schemeIndex = schemes.IndexOf(ThemeManager.UserTheme);
-
-        button = Button.NewWithLabel(GetCurrentIcon());
+        button = Button.New();
         button.SetCursor(Cursors.Pointer);
-        button.OnClicked += (_, _) =>
-        {
-            ChangeScheme();
-            UpdateIcon();
-        };
-
+        button.OnClicked += (_, _) => ThemeManager.ChangeTheme(Next(ThemeManager.UserTheme));
         Append(button);
-    }
 
-    private void ChangeScheme()
-    {
-        schemeIndex = (schemeIndex + 1) % schemes.Length;
-        ThemeManager.ChangeTheme(schemes[schemeIndex]);
-    }
-
-    private void UpdateIcon()
-    {
-        button.Label = GetCurrentIcon();
-    }
-
-    private string GetCurrentIcon()
-    {
-        return ThemeManager.UserTheme switch
+        // Only while shown - the theme can change in the file or on another bar
+        OnMap += (_, _) =>
         {
-            ThemeScheme.Dark => Icons.Theme.Dark,
-            ThemeScheme.Light => Icons.Theme.Light,
-            ThemeScheme.Auto => Icons.Theme.Auto,
-            _ => Icons.Theme.Auto,
+            ThemeManager.ThemeChanged += Update;
+            Update();
         };
+        OnUnmap += (_, _) => ThemeManager.ThemeChanged -= Update;
     }
+
+    private void Update()
+    {
+        var theme = ThemeManager.UserTheme;
+
+        button.SetLabel(
+            theme switch
+            {
+                ThemeScheme.Light => Icons.Theme.Light,
+                ThemeScheme.System => Icons.Theme.System,
+                _ => Icons.Theme.Dark,
+            }
+        );
+        button.SetTooltipText($"Theme: {theme.ToString().ToLowerInvariant()}");
+    }
+
+    private static ThemeScheme Next(ThemeScheme theme) =>
+        theme switch
+        {
+            ThemeScheme.Dark => ThemeScheme.Light,
+            ThemeScheme.Light => ThemeScheme.System,
+            _ => ThemeScheme.Dark,
+        };
 }

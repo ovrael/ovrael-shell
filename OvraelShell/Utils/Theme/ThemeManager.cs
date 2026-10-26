@@ -1,76 +1,92 @@
 using OvraelShell.Enums.Settings;
+using OvraelShell.Utils.Settings;
 
 namespace OvraelShell.Utils.Theme;
 
+/// <summary>
+/// The theme from the settings file. <see cref="ChangeTheme"/> (the theme button) changes it
+/// until the theme in the file changes - a save with the same theme keeps the current one.
+/// </summary>
 public static class ThemeManager
 {
-    public static ThemeScheme UserTheme { get; private set; } = ThemeScheme.Dark;
-    public static event Action? ThemeChanged;
-
-    private static ThemeScheme theme = ThemeScheme.Dark;
-    private static string ColorScheme => theme == ThemeScheme.Light ? "Light" : "Dark";
     private static readonly CssLoader cssLoader = new();
     private static Gtk.Settings? gtkSettings;
+    private static bool isLoaded;
 
-    static ThemeManager()
+    /// <summary>The chosen theme - <see cref="ThemeScheme.System"/> follows the desktop.</summary>
+    public static ThemeScheme UserTheme { get; private set; } = ThemeScheme.Dark;
+
+    /// <summary>Sent when <see cref="UserTheme"/> or the loaded colors change.</summary>
+    public static event Action? ThemeChanged;
+
+    // Dark or Light - the colors that are loaded
+    private static ThemeScheme theme = ThemeScheme.Dark;
+    private static string ColorScheme => theme == ThemeScheme.Light ? "Light" : "Dark";
+
+    /// <summary>
+    /// Loads the styles with the theme from the settings and follows it.
+    /// Call after <see cref="UserSettings.Load"/>. Safe to call more than once.
+    /// </summary>
+    public static void Load()
     {
-        gtkSettings = Gtk.Settings.GetDefault();
+        if (isLoaded)
+            return;
 
+        isLoaded = true;
+
+        // Both live as long as the application - no need to unsubscribe
+        gtkSettings = Gtk.Settings.GetDefault();
         gtkSettings?.OnNotify += (_, args) =>
         {
+            var name = args.Pspec.GetName();
             if (
-                args.Pspec.GetName() == "gtk-application-prefer-dark-theme"
-                && UserTheme == ThemeScheme.Auto
+                UserTheme == ThemeScheme.System
+                && name is ("gtk-interface-color-scheme" or "gtk-application-prefer-dark-theme")
+                && ApplyTheme()
             )
-            {
-                var isDark = gtkSettings.GtkApplicationPreferDarkTheme;
-                ChangeTheme(isDark ? ThemeScheme.Dark : ThemeScheme.Light);
-            }
+                ThemeChanged?.Invoke();
         };
-    }
 
-    public static void Load(ThemeScheme loadTheme)
-    {
-        UserTheme = loadTheme;
-        theme = loadTheme;
+        UserSettings.General.Theme.Changed += ChangeTheme;
 
+        UserTheme = UserSettings.General.Theme.Value;
+        theme = ToColors(UserTheme);
         cssLoader.LoadCss(ColorScheme);
     }
 
     public static void ChangeTheme(ThemeScheme newUserTheme)
     {
-        if (!UpdateTheme(newUserTheme))
-            return; // Nothing changed;
+        if (UserTheme == newUserTheme)
+            return;
 
-        cssLoader.SwitchTheme(ColorScheme);
+        UserTheme = newUserTheme;
+        ApplyTheme();
         ThemeChanged?.Invoke();
     }
 
-    private static bool UpdateTheme(ThemeScheme newTheme)
+    // Loads the colors of UserTheme. False when they are already loaded.
+    private static bool ApplyTheme()
     {
-        // Nothing changed
-        if (UserTheme == newTheme)
+        var newTheme = ToColors(UserTheme);
+        if (newTheme == theme)
             return false;
 
-        UserTheme = newTheme;
-        if (newTheme == ThemeScheme.Auto)
-        {
-            var autoTheme = IsAutoDarkMode() ? ThemeScheme.Dark : ThemeScheme.Light;
-            if (autoTheme == theme) // Nothing changed for user, only change selection
-                return false;
-            theme = autoTheme;
-        }
-        else
-        {
-            theme = newTheme;
-        }
-
+        theme = newTheme;
+        cssLoader.SwitchTheme(ColorScheme);
         return true;
     }
 
-    private static bool IsAutoDarkMode()
+    private static ThemeScheme ToColors(ThemeScheme userTheme)
     {
-        var settings = Gtk.Settings.GetDefault();
-        return settings?.GtkApplicationPreferDarkTheme ?? false;
+        if (userTheme != ThemeScheme.System)
+            return userTheme;
+
+        return IsSystemDark() ? ThemeScheme.Dark : ThemeScheme.Light;
     }
+
+    // The interface color scheme comes from the desktop (the settings portal).
+    // gtk-application-prefer-dark-theme - from settings.ini, if the portal has no color scheme.
+    private static bool IsSystemDark() =>
+        gtkSettings?.GtkInterfaceColorScheme == Gtk.InterfaceColorScheme.Dark
+        || (gtkSettings?.GtkApplicationPreferDarkTheme ?? false);
 }

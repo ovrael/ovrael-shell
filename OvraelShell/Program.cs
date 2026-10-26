@@ -1,5 +1,4 @@
 ﻿using Gtk;
-using OvraelShell.Enums.Settings;
 using OvraelShell.Services;
 using OvraelShell.Utils.Settings;
 using OvraelShell.Utils.Theme;
@@ -31,7 +30,8 @@ application.OnActivate += (sender, e) =>
     // Before the bars - their widgets read the settings when they are created
     UserSettings.Load();
 
-    ThemeManager.Load(ThemeScheme.Dark);
+    // After the settings - the theme comes from them
+    ThemeManager.Load();
 
     // Activate runs again when the application is launched a second time
     services ??= new ShellServices();

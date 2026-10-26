@@ -14,6 +14,9 @@ public sealed class GeneralSettings
 
     public ReactiveProperty<string> DateFormat { get; } = new(defaults.DateFormat!);
 
+    /// <summary>The theme in the file - the current theme is <see cref="Utils.Theme.ThemeManager.UserTheme"/>.</summary>
+    public ReactiveProperty<ThemeScheme> Theme { get; } = new(ValidTheme(defaults.Theme));
+
     /// <summary>.NET format of <see cref="TimeFormat"/>.</summary>
     public string TimeFormatString =>
         TimeFormat.Value == Enums.Settings.TimeFormat.H12 ? "hh:mm:ss tt" : "HH:mm:ss";
@@ -34,6 +37,7 @@ public sealed class GeneralSettings
         LanguageCode.Set(ValidLanguageCode(section.LanguageCode));
         TimeFormat.Set(ValidTimeFormat(section.TimeFormat));
         DateFormat.Set(ValidDateFormat(section.DateFormat));
+        Theme.Set(ValidTheme(section.Theme));
     }
 
     private static string ValidLanguageCode(string? code)
@@ -60,6 +64,23 @@ public sealed class GeneralSettings
 
         Console.WriteLine($"Settings: unknown timeFormat \"{(int)format}\", using the default.");
         return defaults.TimeFormat;
+    }
+
+    // A string, not the enum - an incorrect value in the file must not stop the whole file
+    private static ThemeScheme ValidTheme(string? theme)
+    {
+        if (string.IsNullOrWhiteSpace(theme))
+            return ThemeScheme.Dark;
+
+        // Only the names - Enum.TryParse also accepts numbers
+        foreach (var scheme in Enum.GetValues<ThemeScheme>())
+        {
+            if (string.Equals(scheme.ToString(), theme.Trim(), StringComparison.OrdinalIgnoreCase))
+                return scheme;
+        }
+
+        Console.WriteLine($"Settings: unknown theme \"{theme}\", using the default.");
+        return ThemeScheme.Dark;
     }
 
     private static string ValidDateFormat(string? format)

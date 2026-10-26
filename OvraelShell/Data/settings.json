@@ -2,7 +2,8 @@
     "general": {
         "languageCode": "pl",
         "timeFormat": "24",
-        "dateFormat": "DD-MM-YYYY"
+        "dateFormat": "DD-MM-YYYY",
+        "theme": "dark"
     },
     "hyprworkspaces": {
         "workspaces": [

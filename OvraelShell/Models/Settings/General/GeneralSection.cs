@@ -10,4 +10,7 @@ public sealed class GeneralSection
 
     /// <summary>DD, MM, YYYY style - see <see cref="GeneralSettings.DateFormatString"/>.</summary>
     public string? DateFormat { get; set; } = "DD-MM-YYYY";
+
+    /// <summary>dark, light or system.</summary>
+    public string? Theme { get; set; } = "dark";
 }

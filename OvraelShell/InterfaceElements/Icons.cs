@@ -17,7 +17,7 @@ public static class Icons
     {
         public static readonly string Dark = "";
         public static readonly string Light = "";
-        public static readonly string Auto = "";
+        public static readonly string System = "";
     }
 
     public static class Network
