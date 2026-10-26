@@ -29,10 +29,11 @@
 .network-wireless-listitem {
 }
 
-/* Output / Input tabs, New / Known bluetooth tabs, weather locations - only the open one looks like a button */
+/* Output / Input tabs, New / Known bluetooth tabs, weather locations, tray parts - only the open one looks like a button */
 .audio-tabs button:not(:checked):not(:hover),
 .bluetooth-tabs button:not(:checked):not(:hover),
-.weather-tabs button:not(:checked):not(:hover) {
+.weather-tabs button:not(:checked):not(:hover),
+.tray-tabs button:not(:checked):not(:hover) {
   background: transparent;
   color: @foreground;
 }
@@ -87,6 +88,15 @@
 
 /* "Bluetooth is off", "Searching for devices..." */
 .bluetooth-status {
+  opacity: 0.6;
+}
+
+/* Popover of a widget that is not implemented yet - see PlaceholderPage */
+.placeholder-title {
+  font-weight: bold;
+}
+
+.placeholder-text {
   opacity: 0.6;
 }
 

@@ -175,18 +175,35 @@ What a service must do:
 - **Start again when the daemon comes back**, if it can come and go. See `BluetoothService`:
   `g-name-owner` notify → `Reload()`.
 
-### Step 3 — register the service in `Program.cs`
+### Step 3 — register the service in `ShellServices`
+
+All services are in one object, `Services/ShellServices.cs`. `Program.cs` creates it once and
+gives it to each bar. Add two lines:
 
 ```csharp
-XxxService? xxxService = null;                     // with the other services
+public sealed class ShellServices : IDisposable
+{
+    ...
+    public XxxService Xxx { get; } = new();        // created in the order of the properties
 
+    public void Dispose()
+    {
+        ...
+        Xxx.Dispose();
+    }
+}
+```
+
+`Program.cs` does not change. For reference, it does this:
+
+```csharp
 application.OnActivate += (sender, e) =>
 {
     UserSettings.Load();                           // before the services and bars
     ...
     // Activate runs again when the application is launched a second time
-    xxxService ??= new XxxService();
-    CreateBar(sender, ..., xxxService);
+    services ??= new ShellServices();
+    CreateBar(sender, services);
 };
 
 application.OnShutdown += (_, _) =>
@@ -194,14 +211,14 @@ application.OnShutdown += (_, _) =>
     foreach (var bar in bars)
         bar.RemoveServices();                      // widgets first
     ...
-    xxxService?.Dispose();                         // then the services
+    services?.Dispose();                           // then the services
 };
 ```
 
-- Use `??=`. `Activate` runs again when you start the app a second time. A second `new` makes
-  a second service that nobody disposes.
-- Detach the widgets **before** you dispose the services. If you do it in the other order,
-  disposing a service can update widgets that are being destroyed.
+- `??=` is necessary. `Activate` runs again when you start the app a second time. A second
+  `new` makes a second set of services that nobody disposes.
+- The widgets are detached **before** the services are disposed. If you do it in the other
+  order, disposing a service can update widgets that are being destroyed.
 
 ### Step 4 — the bar button
 
@@ -367,8 +384,8 @@ See `BluetoothDeviceList`. Its rules:
 
 ### Step 7 — put it on the bar (`MainBar.cs`)
 
-1. Add the service field and the constructor parameter of `MainBar.New`, and pass it in
-   `Program.CreateBar`.
+1. The bar has all services in its `services` field. Give the service to the widget:
+   `XxxBarButton.New(services.Xxx)`.
 2. Create the widget in `CreateStart` / `CreateCenter` / `CreateEnd`.
 3. **If the widget implements `IWithDisposableService`, keep it in a field and call its
    `RemoveService()` in `MainBar.RemoveServices()`.** This is the only place where the bar

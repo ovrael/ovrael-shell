@@ -14,12 +14,8 @@ const int BAR_HEIGTH = 40;
 
 var application = Gtk.Application.New("io.ovrael.shell", Gio.ApplicationFlags.FlagsNone);
 
-// One for the whole application - every bar shows the same NetworkManager state
-NetworkService? networkService = null;
-AudioService? audioService = null;
-BluetoothService? bluetoothService = null;
-HyprlandService? hyprlandService = null;
-WeatherService? weatherService = null;
+// One for the whole application - every bar shows the same state
+ShellServices? services = null;
 
 // Open bars - GetWindows gives a raw GLib list, so they are tracked here
 var bars = new List<MainBar>();
@@ -38,20 +34,9 @@ application.OnActivate += (sender, e) =>
     ThemeManager.Load(ThemeScheme.Dark);
 
     // Activate runs again when the application is launched a second time
-    networkService ??= new NetworkService();
-    audioService ??= new AudioService();
-    bluetoothService ??= new BluetoothService();
-    hyprlandService ??= new HyprlandService();
-    weatherService ??= new WeatherService();
+    services ??= new ShellServices();
 
-    CreateBar(
-        sender,
-        networkService,
-        audioService,
-        bluetoothService,
-        hyprlandService,
-        weatherService
-    );
+    CreateBar(sender, services);
 };
 
 application.OnShutdown += (_, _) =>
@@ -63,35 +48,16 @@ application.OnShutdown += (_, _) =>
 
     bars.Clear();
 
-    networkService?.Dispose();
-    audioService?.Dispose();
-    bluetoothService?.Dispose();
-    hyprlandService?.Dispose();
-    weatherService?.Dispose();
+    services?.Dispose();
 
     UserSettings.Unload();
 };
 
 return application.RunWithSynchronizationContext(null);
 
-void CreateBar(
-    Gio.Application sender,
-    NetworkService networkService,
-    AudioService audioService,
-    BluetoothService bluetoothService,
-    HyprlandService hyprlandService,
-    WeatherService weatherService
-)
+void CreateBar(Gio.Application sender, ShellServices services)
 {
-    var window = MainBar.New(
-        networkService,
-        audioService,
-        bluetoothService,
-        hyprlandService,
-        weatherService,
-        BAR_WIDTH,
-        BAR_HEIGTH
-    );
+    var window = MainBar.New(services, BAR_WIDTH, BAR_HEIGTH);
     // Set the "Application" property of the window to the current application instance.
     // This links the window to the application, allowing them to work together.
     window.Application = (Gtk.Application)sender;

@@ -121,4 +121,62 @@ public static class Icons
         public static readonly string nightSnow = "";
         public static readonly string nightThunderstorm = "";
     }
+
+    public static class SystemStatus
+    {
+        public static readonly string Cpu = "󰘚";
+        public static readonly string Memory = "󰍛";
+        public static readonly string Temperature = "󰔏";
+        public static readonly string Disk = "󰋊";
+    }
+
+    public static class Obsidian
+    {
+        public static readonly string Default = "󰠮";
+        public static readonly string Edit = "󱓧";
+    }
+
+    public static class Clipboard
+    {
+        public static readonly string Default = "󰅍";
+        public static readonly string Empty = "󰅌";
+    }
+
+    public static class Media
+    {
+        public static readonly string Default = "󰝚";
+        public static readonly string Play = "󰐊";
+        public static readonly string Pause = "󰏤";
+        public static readonly string Next = "󰒭";
+        public static readonly string Previous = "󰒮";
+    }
+
+    public static class Notifications
+    {
+        public static readonly string Default = "󰂜";
+        public static readonly string Unread = "󱅫";
+        public static readonly string DoNotDisturb = "󰂛";
+    }
+
+    public static class Tray
+    {
+        public static readonly string Default = "󰅃";
+        public static readonly string Drive = "󱊞";
+        public static readonly string Eject = "󰇪";
+        public static readonly string Service = "󰒓";
+    }
+
+    public static class KdeConnect
+    {
+        public static readonly string Connected = "󰄡";
+        public static readonly string Disconnected = "󰥐";
+    }
+
+    public static class Trash
+    {
+        public static readonly string Empty = "󰩺";
+        public static readonly string Full = "󰩹";
+        public static readonly string Restore = "󰠙";
+        public static readonly string EmptyAll = "󰛌";
+    }
 }

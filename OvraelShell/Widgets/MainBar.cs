@@ -3,8 +3,16 @@ using Gtk;
 using OvraelShell.Services;
 using OvraelShell.Widgets.Audio;
 using OvraelShell.Widgets.Bluetooth;
+using OvraelShell.Widgets.Clipboard;
+using OvraelShell.Widgets.KdeConnect;
+using OvraelShell.Widgets.Media;
 using OvraelShell.Widgets.Network;
+using OvraelShell.Widgets.Notifications;
+using OvraelShell.Widgets.Obsidian;
 using OvraelShell.Widgets.Simple;
+using OvraelShell.Widgets.SystemStatus;
+using OvraelShell.Widgets.Trash;
+using OvraelShell.Widgets.Tray;
 using OvraelShell.Widgets.Weather;
 
 namespace OvraelShell.Widgets;
@@ -13,33 +21,25 @@ namespace OvraelShell.Widgets;
 public partial class MainBar
 {
     // Shared by all bars and owned by Program - it outlives this one
-    private AudioService audioService;
-    private BluetoothService bluetoothService;
-    private HyprlandService hyprlandService;
-    private NetworkService networkService;
-    private WeatherService weatherService;
+    private ShellServices services;
 
     private NetworkBarButton networkButton;
     private BluetoothBarButton bluetoothButton;
     private AudioBarButton audioButton;
     private WeatherBarButton weatherButton;
+    private SystemStatusBarButton systemStatusButton;
+    private ObsidianBarButton obsidianButton;
+    private ClipboardBarButton clipboardButton;
+    private MediaBarButton mediaButton;
+    private NotificationsBarButton notificationsButton;
+    private TrayBarButton trayButton;
+    private KdeConnectBarButton kdeConnectButton;
+    private TrashBarButton trashButton;
 
-    public static MainBar New(
-        NetworkService networkService,
-        AudioService audioService,
-        BluetoothService bluetoothService,
-        HyprlandService hyprlandService,
-        WeatherService weatherService,
-        int width = 1920,
-        int height = 30
-    )
+    public static MainBar New(ShellServices services, int width = 1920, int height = 30)
     {
         var bar = NewWithProperties([]);
-        bar.networkService = networkService;
-        bar.audioService = audioService;
-        bar.bluetoothService = bluetoothService;
-        bar.hyprlandService = hyprlandService;
-        bar.weatherService = weatherService;
+        bar.services = services;
         bar.CreateLayout();
         bar.SetDefaultSize(width, height);
         bar.AddCssClass("main-bar");
@@ -71,6 +71,14 @@ public partial class MainBar
         bluetoothButton?.RemoveService();
         audioButton?.RemoveService();
         weatherButton?.RemoveService();
+        systemStatusButton?.RemoveService();
+        obsidianButton?.RemoveService();
+        clipboardButton?.RemoveService();
+        mediaButton?.RemoveService();
+        notificationsButton?.RemoveService();
+        trayButton?.RemoveService();
+        kdeConnectButton?.RemoveService();
+        trashButton?.RemoveService();
     }
 
     // Widgets that need the service are created after New has set it
@@ -78,7 +86,15 @@ public partial class MainBar
         nameof(networkButton),
         nameof(bluetoothButton),
         nameof(audioButton),
-        nameof(weatherButton)
+        nameof(weatherButton),
+        nameof(systemStatusButton),
+        nameof(obsidianButton),
+        nameof(clipboardButton),
+        nameof(mediaButton),
+        nameof(notificationsButton),
+        nameof(trayButton),
+        nameof(kdeConnectButton),
+        nameof(trashButton)
     )]
     private void CreateLayout()
     {
@@ -91,49 +107,85 @@ public partial class MainBar
         SetChild(layout);
     }
 
-    [MemberNotNull(nameof(weatherButton))]
+    [MemberNotNull(nameof(weatherButton), nameof(systemStatusButton))]
     private void CreateStart(CenterBox layout)
     {
         var left = Gtk.Box.New(Orientation.Horizontal, 5);
 
-        weatherButton = WeatherBarButton.New(weatherService);
+        weatherButton = WeatherBarButton.New(services.Weather);
         left.Append(weatherButton);
 
         var caffeine = CaffeineWidget.New();
         left.Append(caffeine);
 
-        var workspace = WorkspaceWidget.New(hyprlandService);
+        var workspace = WorkspaceWidget.New(services.Hyprland);
         left.Append(workspace);
+
+        systemStatusButton = SystemStatusBarButton.New(services.SystemStatus);
+        left.Append(systemStatusButton);
 
         layout.SetStartWidget(left);
     }
 
+    [MemberNotNull(nameof(mediaButton), nameof(obsidianButton))]
     private void CreateCenter(CenterBox layout)
     {
         var center = Gtk.Box.New(Orientation.Horizontal, 5);
 
+        mediaButton = MediaBarButton.New(services.Media);
+        center.Append(mediaButton);
+
         var calendar = CalendarWidget.New();
         center.Append(calendar);
+
+        // Next to the date - the note is the note of this day
+        obsidianButton = ObsidianBarButton.New(services.Obsidian);
+        center.Append(obsidianButton);
 
         layout.SetCenterWidget(center);
     }
 
-    [MemberNotNull(nameof(networkButton), nameof(bluetoothButton), nameof(audioButton))]
+    [MemberNotNull(
+        nameof(networkButton),
+        nameof(bluetoothButton),
+        nameof(audioButton),
+        nameof(clipboardButton),
+        nameof(notificationsButton),
+        nameof(trayButton),
+        nameof(kdeConnectButton),
+        nameof(trashButton)
+    )]
     private void CreateEnd(CenterBox layout)
     {
         var end = Gtk.Box.New(Orientation.Horizontal, 5);
 
-        bluetoothButton = BluetoothBarButton.New(bluetoothService);
+        trayButton = TrayBarButton.New(services.Tray);
+        end.Append(trayButton);
+
+        kdeConnectButton = KdeConnectBarButton.New(services.KdeConnect);
+        end.Append(kdeConnectButton);
+
+        bluetoothButton = BluetoothBarButton.New(services.Bluetooth);
         end.Append(bluetoothButton);
 
-        audioButton = AudioBarButton.New(audioService);
+        audioButton = AudioBarButton.New(services.Audio);
         end.Append(audioButton);
 
-        networkButton = NetworkBarButton.New(networkService);
+        networkButton = NetworkBarButton.New(services.Network);
         end.Append(networkButton);
+
+        clipboardButton = ClipboardBarButton.New(services.Clipboard);
+        end.Append(clipboardButton);
+
+        trashButton = TrashBarButton.New(services.Trash);
+        end.Append(trashButton);
 
         var themeChanger = ThemeChangerWidget.New();
         end.Append(themeChanger);
+
+        // Last, at the edge of the screen - where the notification popups will show
+        notificationsButton = NotificationsBarButton.New(services.Notifications);
+        end.Append(notificationsButton);
 
         layout.SetEndWidget(end);
     }
