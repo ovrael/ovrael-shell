@@ -74,5 +74,23 @@
                 "longitude": 18.65
             }
         ]
+    },
+    "widgetsToLoad": {
+        "weather": true,
+        "caffeine": true,
+        "workspaces": true,
+        "systemStatus": false,
+        "media": false,
+        "calendar": true,
+        "obsidian": false,
+        "tray": false,
+        "kdeConnect": false,
+        "bluetooth": true,
+        "audio": true,
+        "network": true,
+        "clipboard": false,
+        "trash": false,
+        "themeChanger": true,
+        "notifications": false
     }
 }

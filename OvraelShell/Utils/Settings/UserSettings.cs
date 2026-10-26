@@ -5,6 +5,7 @@ using OvraelShell.Models.Settings;
 using OvraelShell.Models.Settings.General;
 using OvraelShell.Models.Settings.Hyprland;
 using OvraelShell.Models.Settings.Weather;
+using OvraelShell.Models.Settings.Widgets;
 
 namespace OvraelShell.Utils.Settings;
 
@@ -47,6 +48,7 @@ public static class UserSettings
     public static GeneralSettings General { get; } = new();
     public static HyprWorkspacesSettings HyprWorkspaces { get; } = new();
     public static WeatherSettings Weather { get; } = new();
+    public static WidgetsToLoadSettings WidgetsToLoad { get; } = new();
 
     /// <summary>
     /// Reads the file (creates it with the defaults if it does not exist) and starts to watch it.
@@ -140,11 +142,13 @@ public static class UserSettings
             General = null,
             HyprWorkspaces = null,
             Weather = null,
+            WidgetsToLoad = null,
         };
 
         General.Apply(file.General ?? new GeneralSection());
         HyprWorkspaces.Apply(file.HyprWorkspaces ?? new HyprWorkspacesSection());
         Weather.Apply(file.Weather ?? new WeatherSection());
+        WidgetsToLoad.Apply(file.WidgetsToLoad ?? WidgetsToLoadSettings.CreateDefaults());
 
         Console.WriteLine($"Settings: loaded {FilePath}");
     }

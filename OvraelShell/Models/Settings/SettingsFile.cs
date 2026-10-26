@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using OvraelShell.Models.Settings.General;
 using OvraelShell.Models.Settings.Hyprland;
 using OvraelShell.Models.Settings.Weather;
+using OvraelShell.Models.Settings.Widgets;
 
 namespace OvraelShell.Models.Settings;
 
@@ -17,4 +18,7 @@ public sealed class SettingsFile
 
     [JsonPropertyName("weather")]
     public WeatherSection? Weather { get; set; } = new();
+
+    public Dictionary<string, bool?>? WidgetsToLoad { get; set; } =
+        WidgetsToLoadSettings.CreateDefaults();
 }

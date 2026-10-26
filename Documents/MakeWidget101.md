@@ -178,18 +178,20 @@ What a service must do:
 ### Step 3 — register the service in `ShellServices`
 
 All services are in one object, `Services/ShellServices.cs`. `Program.cs` creates it once and
-gives it to each bar. Add two lines:
+gives it to each bar. A service is created on the first use, so the service of a widget that is
+not loaded (see step 7) is not started. Add three lines:
 
 ```csharp
 public sealed class ShellServices : IDisposable
 {
+    private XxxService? xxx;
     ...
-    public XxxService Xxx { get; } = new();        // created in the order of the properties
+    public XxxService Xxx => xxx ??= new();        // created on the first use
 
     public void Dispose()
     {
         ...
-        Xxx.Dispose();
+        xxx?.Dispose();
     }
 }
 ```
@@ -387,10 +389,16 @@ See `BluetoothDeviceList`. Its rules:
 1. The bar has all services in its `services` field. Give the service to the widget:
    `XxxBarButton.New(services.Xxx)`.
 2. Create the widget in `CreateStart` / `CreateCenter` / `CreateEnd`.
-3. **If the widget implements `IWithDisposableService`, keep it in a field and call its
-   `RemoveService()` in `MainBar.RemoveServices()`.** This is the only place where the bar
-   detaches from the shared services: when it closes, when the monitor is unplugged, and when
-   the app quits. A widget that is not in this list leaks with its whole bar.
+3. **Load the widget only when `widgetsToLoad` in `settings.json` allows it.** Add a constant to
+   `Models/Settings/Widgets/WidgetName.cs` and a default to
+   `WidgetsToLoadSettings.CreateDefaults()` (`false` while the widget is not done). Create the
+   widget in an `if (IsLoaded(WidgetName.Xxx))` block. When the setting changes, the bar builds
+   its layout again.
+4. **If the widget implements `IWithDisposableService`, keep it in a nullable field and call its
+   `RemoveService()` in `MainBar.RemoveWidgetServices()`. Set the field to `null` in
+   `OnWidgetsToLoadChanged`.** This is the only place where the bar detaches from the shared
+   services: when it closes, when the monitor is unplugged, when the app quits, and before the
+   layout is built again. A widget that is not in this list leaks with its whole bar.
 
 ### Step 8 — settings (optional)
 
@@ -560,7 +568,7 @@ The leak checklist:
 - [ ] When you remove an item from a dictionary of UI elements, you also remove its handlers
       and dispose the element (`WeatherPopover.RemoveLocation`).
 - [ ] `RemoveService()` is safe to call twice. `RemoveServices` runs on close and again on quit.
-- [ ] The new widget is in `MainBar.RemoveServices()` (or uses pattern B).
+- [ ] The new widget is in `MainBar.RemoveWidgetServices()` (or uses pattern B).
 
 ---
 
@@ -654,7 +662,8 @@ Before you commit, test:
 - [ ] Named handlers for long-lived publishers. Each `+=` has a `-=`.
 - [ ] One `Update()` that renders the whole state. It is called after each change and at the start.
 - [ ] `RemoveService()` cascades to the popover and the elements, and is safe to call twice.
-- [ ] Registered in `MainBar.RemoveServices()` (or uses `OnMap`/`OnUnmap`).
+- [ ] Registered in `MainBar.RemoveWidgetServices()` (or uses `OnMap`/`OnUnmap`).
+- [ ] Has a key in `widgetsToLoad` (`WidgetName` + `WidgetsToLoadSettings.CreateDefaults()`).
 - [ ] Lists: `ListView` + factory. Rows unsubscribe in `Unbind`.
 - [ ] Popover: no size change while it is open. The keyboard is requested and released if
       there is an entry. Expensive work happens only while it is shown.
