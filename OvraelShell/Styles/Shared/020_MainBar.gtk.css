@@ -7,3 +7,10 @@
   border-width: 1px;
   border-style: solid;
 }
+
+/* In the regular Nerd Font the icons are one cell wide and stick out to the right,
+   so a button centers them wrongly. Propo gives each icon its real width.
+   Only the buttons on the bar - their popovers are deeper in the tree */
+.main-bar > box > box > * > button > label {
+  font-family: "FiraCode Nerd Font Propo";
+}
