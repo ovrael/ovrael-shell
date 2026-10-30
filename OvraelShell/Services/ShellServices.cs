@@ -19,6 +19,7 @@ public sealed class ShellServices : IDisposable
     private TrayService? tray;
     private KdeConnectService? kdeConnect;
     private TrashService? trash;
+    private CalendarService? calendar;
 
     // Created on the first use - the service of a widget that is not loaded is not started
     public NetworkService Network => network ??= new();
@@ -34,6 +35,7 @@ public sealed class ShellServices : IDisposable
     public TrayService Tray => tray ??= new();
     public KdeConnectService KdeConnect => kdeConnect ??= new();
     public TrashService Trash => trash ??= new();
+    public CalendarService Calendar => calendar ??= new();
 
     /// <summary>Detach the bars first, so disposing a service does not update their widgets.</summary>
     public void Dispose()
@@ -51,5 +53,6 @@ public sealed class ShellServices : IDisposable
         tray?.Dispose();
         kdeConnect?.Dispose();
         trash?.Dispose();
+        calendar?.Dispose();
     }
 }

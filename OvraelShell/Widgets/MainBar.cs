@@ -4,6 +4,7 @@ using OvraelShell.Services;
 using OvraelShell.Utils.Settings;
 using OvraelShell.Widgets.Audio;
 using OvraelShell.Widgets.Bluetooth;
+using OvraelShell.Widgets.Calendar;
 using OvraelShell.Widgets.Clipboard;
 using OvraelShell.Widgets.KdeConnect;
 using OvraelShell.Widgets.Media;
@@ -37,6 +38,7 @@ public partial class MainBar
     private TrayBarButton? trayButton;
     private KdeConnectBarButton? kdeConnectButton;
     private TrashBarButton? trashButton;
+    private CalendarBarButton? calendarButton;
 
     public static MainBar New(ShellServices services, int width = 1920, int height = 30)
     {
@@ -89,6 +91,7 @@ public partial class MainBar
         trayButton?.RemoveService();
         kdeConnectButton?.RemoveService();
         trashButton?.RemoveService();
+        calendarButton?.RemoveService();
     }
 
     // The whole layout is built again - the widgets keep their order on the bar
@@ -108,6 +111,7 @@ public partial class MainBar
         trayButton = null;
         kdeConnectButton = null;
         trashButton = null;
+        calendarButton = null;
 
         CreateLayout();
     }
@@ -162,7 +166,10 @@ public partial class MainBar
         }
 
         if (IsLoaded(WidgetName.Calendar))
-            center.Append(CalendarWidget.New());
+        {
+            calendarButton = CalendarBarButton.New(services.Calendar);
+            center.Append(calendarButton);
+        }
 
         // Next to the date - the note is the note of this day
         if (IsLoaded(WidgetName.Obsidian))
