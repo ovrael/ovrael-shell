@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
+using OvraelShell.InterfaceElements;
 using OvraelShell.Models;
 using OvraelShell.Services;
+using OvraelShell.Widgets.Calendar.Elements;
 using OvraelShell.Widgets.Shared;
 
 namespace OvraelShell.Widgets.Calendar;
@@ -72,13 +74,8 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
         content.SetMarginStart(12);
         content.SetMarginEnd(12);
 
-        var dateChanger = Box.New(Orientation.Horizontal, 8);
-        var date = DateTime.Now;
-        var monthChanger = CreateMonthChanger(date.Month);
-        var yearChanger = CreateYearChanger(date.Year);
-        dateChanger.Append(monthChanger);
-        dateChanger.Append(yearChanger);
-
+        var dateChanger = CreateDateChanger();
+        var dayNames = CalendarDayNamesHeader.New();
         calendarMonth = CalendarMonth.New(
             DateTime.Now,
             monthDifference.Value,
@@ -86,6 +83,7 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
         );
 
         content.Append(dateChanger);
+        content.Append(dayNames);
         content.Append(calendarMonth);
     }
 
@@ -97,14 +95,31 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
         yearLabel.SetText($"{date.Year + yearDifference}");
     }
 
+    private Box CreateDateChanger()
+    {
+        var dateChanger = Box.New(Orientation.Horizontal, 8);
+        var date = DateTime.Now;
+
+        var monthChanger = CreateMonthChanger(date.Month);
+        dateChanger.Append(monthChanger);
+
+        var yearChanger = CreateYearChanger(date.Year);
+        dateChanger.Append(yearChanger);
+
+        return dateChanger;
+    }
+
     [MemberNotNull(nameof(monthLabel))]
     private Box CreateMonthChanger(int currentMonth)
     {
         var container = Box.New(Orientation.Horizontal, 6);
+        container.Hexpand = true;
         var previousButton = Button.NewWithLabel("<");
+        previousButton.SetCursor(Cursors.Pointer);
         monthLabel = Label.New(CalendarUtils.NumberToMonthName(currentMonth));
         monthLabel.WidthChars = CalendarUtils.MaxMonthNameLength + 2;
         var nextButton = Button.NewWithLabel(">");
+        nextButton.SetCursor(Cursors.Pointer);
 
         previousButton.OnClicked += (_, _) =>
             monthDifference.Set((monthDifference.Value + 11) % 12);
@@ -123,9 +138,11 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
     {
         var container = Box.New(Orientation.Horizontal, 6);
         var previousButton = Button.NewWithLabel("<");
+        previousButton.SetCursor(Cursors.Pointer);
         yearLabel = Label.New($"{currentYear}");
         yearLabel.WidthChars = 8;
         var nextButton = Button.NewWithLabel(">");
+        nextButton.SetCursor(Cursors.Pointer);
 
         previousButton.OnClicked += (_, _) => yearDifference.Set(yearDifference.Value - 1);
         nextButton.OnClicked += (_, _) => yearDifference.Set(yearDifference.Value + 1);

@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
 
+namespace OvraelShell.Widgets.Calendar.Elements;
+
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class CalendarMonth
 {

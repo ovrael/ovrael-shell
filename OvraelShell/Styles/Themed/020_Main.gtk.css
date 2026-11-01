@@ -146,33 +146,38 @@
 
 /* Weather icons - for the dark background of the popover */
 .weather-sun {
-  color: #F5C451;
+  color: #f5c451;
 }
 
 .weather-moon {
-  color: #C9D1E6;
+  color: #c9d1e6;
 }
 
 .weather-cloud-mid {
-  color: #D6CB96;
+  color: #d6cb96;
 }
 
 .weather-cloud-mid-night {
-  color: #A9B2C6;
+  color: #a9b2c6;
 }
 
 .weather-cloud-full {
-  color: #98A2AE;
+  color: #98a2ae;
 }
 
 .weather-rain {
-  color: #7DB4F7;
+  color: #7db4f7;
 }
 
 .weather-snow {
-  color: #E6F0FA;
+  color: #e6f0fa;
 }
 
 .weather-thunderstorm {
-  color: #B28CF5;
+  color: #b28cf5;
+}
+
+.calendar-day-names-header {
+}
+.calendar-day-names-label {
 }

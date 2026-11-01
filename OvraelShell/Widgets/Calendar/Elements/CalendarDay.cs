@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
 
+namespace OvraelShell.Widgets.Calendar.Elements;
+
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class CalendarDay
 {
