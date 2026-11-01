@@ -6,36 +6,49 @@ public sealed partial class CalendarMonth
 {
     Grid daysGrid;
 
-    public static CalendarMonth New(DateOnly date, int monthDifference = 0, int yearDifference = 0)
+    public static CalendarMonth New(DateTime date, int monthDifference = 0, int yearDifference = 0)
     {
         var month = NewWithProperties([]);
-        month.CreateDays(date, monthDifference, yearDifference);
+        month.FillDaysGrid(date, monthDifference, yearDifference);
         return month;
     }
 
+    [MemberNotNull(nameof(daysGrid))]
     partial void Initialize()
     {
         SetOrientation(Orientation.Vertical);
         SetSpacing(6);
         AddCssClass("calendar-day-box");
-    }
 
-    [MemberNotNull(nameof(daysGrid))]
-    private void CreateDays(DateOnly date, int monthDifference, int yearDifference)
-    {
         daysGrid = Grid.New();
         daysGrid.RowSpacing = 4;
         daysGrid.ColumnSpacing = 4;
         // Homogeneous - one-digit days get the same size as two-digit days
         daysGrid.ColumnHomogeneous = true;
         daysGrid.RowHomogeneous = true;
+        Append(daysGrid);
+    }
 
+    private void ClearGrid()
+    {
+        var day = daysGrid.GetFirstChild();
+        while (day != null)
+        {
+            daysGrid.Remove(day);
+            day.Dispose();
+            day = daysGrid.GetFirstChild();
+        }
+    }
+
+    public void FillDaysGrid(DateTime dateTime, int monthDifference, int yearDifference)
+    {
+        ClearGrid();
         const int WEEKS_COUNT = 6;
         const int DAYS_COUNT = 7;
 
-        var dayOfMonth = date.Day;
-        var month = date.Month - monthDifference;
-        var year = date.Year + yearDifference;
+        var dayOfMonth = dateTime.Day;
+        var month = (dateTime.Month + monthDifference + 11) % 12 + 1;
+        var year = dateTime.Year + yearDifference;
 
         var previousMonthLength = CalendarUtils.GetMonthLength((month + 11) % 12, year);
         var currentMonthLength = CalendarUtils.GetMonthLength(month, year);
@@ -88,7 +101,5 @@ public sealed partial class CalendarMonth
             daysGrid.Attach(day, dayCounter % DAYS_COUNT, dayCounter / DAYS_COUNT, 1, 1);
             dayCounter++;
         }
-
-        Append(daysGrid);
     }
 }

@@ -1,9 +1,23 @@
 public static class CalendarUtils
 {
+    private static readonly string[] monthNames =
+    [
+        "Styczeń",
+        "Luty",
+        "Marzec",
+        "Kwiecień",
+        "Maj",
+        "Czerwiec",
+        "Lipiec",
+        "Sierpień",
+        "Wrzesień",
+        "Październik",
+        "Listopad",
+        "Grudzień",
+    ];
+
     public static int GetMonthLength(int month, int year)
     {
-        month = (month % 12) + 1;
-
         return month switch
         {
             4 or 6 or 9 or 11 => 30,
@@ -16,4 +30,13 @@ public static class CalendarUtils
     {
         return $"{day}-{month}-{year}";
     }
+
+    public static string NumberToMonthName(int month)
+    {
+        if (month >= 1 && month <= 12)
+            return monthNames[month - 1];
+        return $"WRONG: {month}";
+    }
+
+    public static int MaxMonthNameLength => monthNames.MaxBy(m => m.Length)!.Length;
 }
