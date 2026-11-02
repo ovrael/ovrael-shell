@@ -181,3 +181,39 @@
 }
 .calendar-day-names-label {
 }
+
+.calendar-day-previous-month {
+  background-color: #858585;
+}
+.calendar-day-previous-month > label {
+  color: black;
+}
+
+.calendar-day-current-month {
+  background-color: #3481df;
+}
+.calendar-day-current-month > label {
+  color: black;
+}
+
+.calendar-day-current-month-today {
+  background-color: #22c95c;
+}
+.calendar-day-current-month-today > label {
+  color: black;
+}
+
+.calendar-day-next-month {
+  background-color: #a1a1a1;
+}
+.calendar-day-next-month > label {
+  color: black;
+}
+
+.calendar-day-event {
+  background-color: pink;
+  border: red solid 2px;
+}
+.calendar-day-event > label {
+  color: green;
+}

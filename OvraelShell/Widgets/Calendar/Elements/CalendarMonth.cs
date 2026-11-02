@@ -78,7 +78,7 @@ public sealed partial class CalendarMonth
 
             List<string> dayCssClasses = ["calendar-day-current-month"];
             if (i + 1 == dayOfMonth && monthDifference % 12 == 0 && yearDifference == 0)
-                dayCssClasses = ["calendar-day-current-month-day"];
+                dayCssClasses = ["calendar-day-current-month-today"];
 
             //   if (events.some((e) => e.date == date)) {
             //     dayCssClasses.push("calendar-day-event");

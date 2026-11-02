@@ -9,18 +9,10 @@ public sealed partial class CalendarDay
 {
     Button button;
 
-    [MemberNotNull(nameof(button))]
     public static CalendarDay New(string label, IEnumerable<string> cssClasses, bool inCurrentMonth)
     {
         var day = NewWithProperties([]);
-        day.button = Button.NewWithLabel(label);
-        day.button.SetCursor(Cursors.Pointer);
-        // Fills the grid cell, so all the days have the same size
-        day.button.SetHexpand(true);
-        day.button.SetVexpand(true);
-        foreach (var cssClass in cssClasses)
-            day.button.AddCssClass(cssClass);
-        day.Append(day.button);
+        day.CreateButton(label, cssClasses, inCurrentMonth);
         return day;
     }
 
@@ -29,5 +21,31 @@ public sealed partial class CalendarDay
         SetOrientation(Orientation.Horizontal);
         SetSpacing(4);
         AddCssClass("calendar-day-box");
+    }
+
+    [MemberNotNull(nameof(button))]
+    private void CreateButton(string label, IEnumerable<string> cssClasses, bool inCurrentMonth)
+    {
+        button = Button.NewWithLabel(label);
+        // Fills the grid cell, so all the days have the same size
+        button.SetHexpand(true);
+        button.SetVexpand(true);
+        foreach (var cssClass in cssClasses)
+            button.AddCssClass(cssClass);
+
+        button.Focusable = false;
+        if (inCurrentMonth)
+        {
+            button.SetCursor(Cursors.Pointer);
+            button.Focusable = true;
+            button.OnClicked += CreateEvent;
+        }
+
+        Append(button);
+    }
+
+    private void CreateEvent(Button b, EventArgs e)
+    {
+        button.AddCssClass("calendar-day-event");
     }
 }
