@@ -148,6 +148,8 @@ void AddVolumeLevelWindow(Application app, AudioService? audioService)
             2000,
             () =>
             {
+                // Returning false removes the source, so the stored ID is no longer valid
+                timeoutId = null;
                 audioVolumeLevelWindow.Hide();
                 return false;
             }

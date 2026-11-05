@@ -38,13 +38,16 @@ public sealed class HyprlandClient
         return await reader.ReadToEndAsync(token);
     }
 
-    /// <summary>Id of the workspace on the focused monitor.</summary>
-    public async Task<int> GetActiveWorkspaceIdAsync(CancellationToken token = default)
+    /// <summary>
+    /// Id of the workspace on the focused monitor. Null for a named or special workspace -
+    /// since Hyprland 0.57 only numbered workspaces have an id.
+    /// </summary>
+    public async Task<int?> GetActiveWorkspaceIdAsync(CancellationToken token = default)
     {
         var reply = await RequestAsync("j/activeworkspace", token);
 
         using var json = JsonDocument.Parse(reply);
-        return json.RootElement.GetProperty("id").GetInt32();
+        return json.RootElement.TryGetProperty("id", out var id) ? id.GetInt32() : null;
     }
 
     /// <summary>Connects to the event socket. Events that come after this call are not lost.</summary>

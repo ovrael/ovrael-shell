@@ -64,7 +64,7 @@ public partial class WorkspaceWidget
         for (var i = 0; i < workspaces.Count; i++)
             Append(CreateLabel(workspaces[i], i + 1, activeId == i + 1));
 
-        // Special workspaces have negative ids
+        // A numbered workspace that is not in the settings
         if (activeId is { } id && (id < 1 || id > workspaces.Count))
             Append(CreateLabel(other, id, true));
     }

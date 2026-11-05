@@ -11,7 +11,10 @@ public sealed class HyprlandService : IDisposable
 {
     private readonly CancellationTokenSource cancellation = new();
 
-    /// <summary>Id of the workspace on the focused monitor. Null when Hyprland is not available.</summary>
+    /// <summary>
+    /// Id of the workspace on the focused monitor. Null when Hyprland is not available,
+    /// or the workspace is named or special (they have no id).
+    /// </summary>
     public ReactiveProperty<int?> ActiveWorkspaceId { get; } = new();
 
     public HyprlandService()
@@ -43,7 +46,7 @@ public sealed class HyprlandService : IDisposable
 
             while (await events.ReadAsync(token) is { } hyprlandEvent)
             {
-                if (GetActiveWorkspaceId(hyprlandEvent) is { } id)
+                if (TryGetActiveWorkspaceId(hyprlandEvent, out var id))
                     RunOnMainThread(() => ActiveWorkspaceId.Set(id), token);
             }
 
@@ -60,23 +63,25 @@ public sealed class HyprlandService : IDisposable
         }
     }
 
-    /// <summary>The new active workspace, if the event changes it.</summary>
-    private static int? GetActiveWorkspaceId(HyprlandEvent hyprlandEvent)
+    /// <summary>True when the event changes the active workspace. The id is null for a named workspace.</summary>
+    private static bool TryGetActiveWorkspaceId(HyprlandEvent hyprlandEvent, out int? id)
     {
         var data = hyprlandEvent.Data;
 
-        var idText = hyprlandEvent.Name switch
+        // Since Hyprland 0.57 the address is the id of a numbered workspace, or the name of a named one
+        var address = hyprlandEvent.Name switch
         {
-            // workspacev2>>ID,NAME - other workspace on the focused monitor
+            // workspacev2>>ADDRESS,NAME - other workspace on the focused monitor
             "workspacev2" => data[..Math.Max(data.IndexOf(','), 0)],
 
-            // focusedmonv2>>MONITOR,ID - other monitor is focused. A monitor name has no comma.
+            // focusedmonv2>>MONITOR,ADDRESS - other monitor is focused. A monitor name has no comma.
             "focusedmonv2" => data[(data.LastIndexOf(',') + 1)..],
 
             _ => null,
         };
 
-        return int.TryParse(idText, out var id) ? id : null;
+        id = int.TryParse(address, out var value) ? value : null;
+        return address is not null;
     }
 
     private static void RunOnMainThread(Action action, CancellationToken token) =>
