@@ -23,6 +23,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+**/google_secret.json
+
 # Visual Studio 2015 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -287,3 +289,10 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+CalendarFiles/CalendarProviders/GoogleCloude/GoogleCalendarProvider.cs
+CalendarFiles/CalendarProviders/SQLite/SqliteCalendarStore.cs
+CalendarFiles/CalendarProviders/SQLite/SqliteCalendarStore.Default.cs
+CalendarFiles/Interfaces/ICalendarProvider.cs
+CalendarFiles/Interfaces/ICalendarStore.cs
+CalendarFiles/Models/Models.cs
+CalendarFiles/Services/CalendarService.cs

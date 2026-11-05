@@ -1,8 +1,51 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
+using OvraelShell.Services;
 
 namespace OvraelShell.Widgets.Calendar.Elements;
+
+public class CreateEventFormData
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+
+    public bool IsAllDay { get; set; }
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+
+    private List<string>? Validate()
+    {
+        List<string>? errors = [];
+
+        string? titleError = ValidateTitle(Title);
+        if (titleError is not null)
+            errors.Add(titleError);
+
+        string? dateTimeError = ValidateDateTime(Start, End, IsAllDay);
+        if (dateTimeError is not null)
+            errors.Add(dateTimeError);
+
+        return errors;
+    }
+
+    private string? ValidateTitle(string title)
+    {
+        if (string.IsNullOrEmpty(title))
+            return "Title cannot be empty";
+        return null;
+    }
+
+    private string? ValidateDateTime(DateTime start, DateTime end, bool isAllDay)
+    {
+        if (isAllDay)
+            return null;
+
+        if (DateTime.Compare(start, end) > 0)
+            return "Start cannot be later than end";
+        return null;
+    }
+}
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class CalendarDay
@@ -46,6 +89,35 @@ public sealed partial class CalendarDay
 
     private void CreateEvent(Button b, EventArgs e)
     {
+        CreateEventFormData form = new CreateEventFormData();
         button.AddCssClass("calendar-day-event");
+
+        var window = Window.New();
+        window.Title = "Create event";
+
+        var contentBox = Box.New(Orientation.Vertical, 20);
+        var titleBox = CreateEventTitle(form);
+        contentBox.Append(titleBox);
+
+        window.SetChild(contentBox);
+
+        window.Present();
+        window.ForceFloating();
+        window.Resizable = false;
+        window.DefaultHeight = 600;
+        window.DefaultWidth = 300;
+        // window.Application = ShellServices.app;
+    }
+
+    private Box CreateEventTitle(CreateEventFormData form)
+    {
+        var box = Box.New(Orientation.Vertical, 4);
+        var label = Label.New("Event title");
+        var entry = Entry.New();
+
+        box.Append(label);
+        box.Append(entry);
+
+        return box;
     }
 }

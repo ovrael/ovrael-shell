@@ -1,0 +1,73 @@
+.event-1 {
+  background:
+    linear-gradient(red, red) top / 100% 4px no-repeat,
+    /* 100% górnej krawędzi */ linear-gradient(red, red) bottom / 100% 4px
+      no-repeat,
+    /* 100% prawej krawędzi */ linear-gradient(red, red) right / 4px no-repeat,
+    /* 100% dolnej krawędzi */ linear-gradient(red, red) left / 4px no-repeat; /* 100% lewej krawędzi */
+}
+
+.event-2 {
+  background:
+    /* górne wydarzenie, pierwsze */
+    linear-gradient(red, red) top left / 100% 4px no-repeat,
+    /* góra */ linear-gradient(red, red) top left / 4px 50% no-repeat,
+    /* lewo */ linear-gradient(red, red) top right / 4px 50% no-repeat,
+    /* prawo */ /* dolne wydarzenie, drugie */ linear-gradient(blue, blue)
+      bottom left / 100% 4px no-repeat,
+    /* dół */ linear-gradient(blue, blue) bottom left / 4px 50% no-repeat,
+    /* lewo */ linear-gradient(blue, blue) bottom right / 4px 50% no-repeat; /* prawo */
+}
+
+.event-3 {
+  background:
+    /* górne wydarzenie, pierwsze */
+    linear-gradient(red, red) top left / 100% 4px no-repeat,
+    /* góra */ /* prawe wydarzenie, drugie */ linear-gradient(blue, blue) top
+      right / 4px 100% no-repeat,
+    /* prawo */ /* dół, połączenie*/ linear-gradient(blue, blue) bottom right /
+      50% 4px no-repeat,
+    /* prawy dół */ linear-gradient(green, green) bottom left / 50% 4px
+      no-repeat,
+    /* lewy dół */ /* lewe wydarzenie, trzecie */ linear-gradient(green, green)
+      left bottom / 4px 100% no-repeat /* lewo */;
+}
+
+.event-4 {
+  background:
+    linear-gradient(red, red) top / 100% 4px no-repeat,
+    /* 100% górnej krawędzi */ linear-gradient(blue, blue) right / 4px no-repeat,
+    /* 100% dolnej krawędzi */ linear-gradient(green, green) bottom / 100% 4px
+      no-repeat,
+    /* 100% prawej krawędzi */ linear-gradient(yellow, yellow) left / 4px
+      no-repeat /* 100% lewej krawędzi */;
+}
+
+.event-5 {
+  background:
+    /*góra*/
+    linear-gradient(purple, purple) top left / 10% 4px no-repeat,
+    linear-gradient(red, red) top / 80% 4px no-repeat,
+    linear-gradient(blue, blue) top right / 10% 4px no-repeat,
+    /*prawo*/ linear-gradient(blue, blue) top right / 4px 70% no-repeat,
+    linear-gradient(green, green) bottom right / 4px 30% no-repeat,
+    /*dół*/ linear-gradient(green, green) bottom right / 50% 4px no-repeat,
+    linear-gradient(yellow, yellow) bottom left / 50% 4px no-repeat,
+    /*lewo*/ linear-gradient(yellow, yellow) bottom left / 4px 30% no-repeat,
+    linear-gradient(purple, purple) top left / 4px 70% no-repeat;
+}
+
+.event-6 {
+  background:
+    /*góra*/
+    linear-gradient(orange, orange) top left / 17% 4px no-repeat,
+    linear-gradient(red, red) top / 66% 4px no-repeat,
+    linear-gradient(blue, blue) top right / 17% 4px no-repeat,
+    /*prawo*/ linear-gradient(blue, blue) top right / 4px 50% no-repeat,
+    linear-gradient(green, green) bottom right / 4px 50% no-repeat,
+    /*dół*/ linear-gradient(green, green) bottom right / 17% 4px no-repeat,
+    linear-gradient(yellow, yellow) bottom / 66% 4px no-repeat,
+    linear-gradient(purple, purple) bottom left / 17% 4px no-repeat,
+    /*lewo*/ linear-gradient(purple, purple) bottom left / 4px 50% no-repeat,
+    linear-gradient(orange, orange) top left / 4px 50% no-repeat;
+}

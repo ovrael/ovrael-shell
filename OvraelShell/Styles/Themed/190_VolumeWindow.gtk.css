@@ -1,0 +1,44 @@
+.volume-window {
+  border-radius: 0;
+  border: 1px rgba(255, 255, 255, 0.2) solid;
+  background-color: rgb(15, 15, 15);
+}
+
+.volume-level-icon {
+  font-size: 18px;
+}
+.volume-level-text {
+  font-size: 14px;
+}
+
+.volume-level-bar {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-radius: 0px;
+}
+
+.volume-level-bar > trough,
+.volume-level-bar > trough > block {
+  border-radius: 0px;
+  border: none;
+}
+
+.volume-level-bar > trough > block.filled.verylow {
+  background-color: #4c00ef;
+}
+
+.volume-level-bar > trough > block.filled.low {
+  background-color: #00e593;
+}
+
+.volume-level-bar > trough > block.filled.mid {
+  background-color: #02e300;
+}
+
+.volume-level-bar > trough > block.filled.high {
+  background-color: #f0bf00;
+}
+
+.volume-level-bar > trough > block.filled.full {
+  background-color: #e92100;
+}
