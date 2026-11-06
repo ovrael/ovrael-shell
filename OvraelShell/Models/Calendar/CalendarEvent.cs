@@ -20,6 +20,8 @@ public class CalendarEvent
         return start == day || end == day;
     }
 
+    public override int GetHashCode() => HashCode.Combine(Name, Start, End);
+
     public bool Equals(CalendarEvent? other) =>
         other is not null && Name == other.Name && Start == other.Start && End == other.End;
 

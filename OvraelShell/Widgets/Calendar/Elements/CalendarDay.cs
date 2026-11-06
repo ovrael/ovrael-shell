@@ -1,52 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
+using OvraelShell.Models;
 using OvraelShell.Models.Calendar;
 using OvraelShell.Services;
 
 namespace OvraelShell.Widgets.Calendar.Elements;
-
-public class CreateEventFormData
-{
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-
-    public bool IsAllDay { get; set; }
-    public DateTime Start { get; set; }
-    public DateTime End { get; set; }
-
-    private List<string>? Validate()
-    {
-        List<string>? errors = [];
-
-        string? titleError = ValidateTitle(Title);
-        if (titleError is not null)
-            errors.Add(titleError);
-
-        string? dateTimeError = ValidateDateTime(Start, End, IsAllDay);
-        if (dateTimeError is not null)
-            errors.Add(dateTimeError);
-
-        return errors;
-    }
-
-    private string? ValidateTitle(string title)
-    {
-        if (string.IsNullOrEmpty(title))
-            return "Title cannot be empty";
-        return null;
-    }
-
-    private string? ValidateDateTime(DateTime start, DateTime end, bool isAllDay)
-    {
-        if (isAllDay)
-            return null;
-
-        if (DateTime.Compare(start, end) > 0)
-            return "Start cannot be later than end";
-        return null;
-    }
-}
 
 [GObject.Subclass<Gtk.Box>]
 public sealed partial class CalendarDay
@@ -54,6 +13,7 @@ public sealed partial class CalendarDay
     Button button;
     DateOnly date;
     CalendarService service;
+    readonly ReactiveCollection<CalendarEvent> events = new();
 
     public static CalendarDay New(
         CalendarService service,
@@ -63,9 +23,9 @@ public sealed partial class CalendarDay
     )
     {
         var day = NewWithProperties([]);
-        day.date = date;
-        day.service = service;
+        day.AssignProperties(service, date);
         day.CreateButton($"{date.Day}", cssClasses, inCurrentMonth);
+        day.SetupEvents(day.service);
         return day;
     }
 
@@ -74,6 +34,31 @@ public sealed partial class CalendarDay
         SetOrientation(Orientation.Horizontal);
         SetSpacing(4);
         AddCssClass("calendar-day-box");
+    }
+
+    private void AssignProperties(CalendarService calendarService, DateOnly date)
+    {
+        service = calendarService;
+        this.date = date;
+    }
+
+    private void SetupEvents(CalendarService service)
+    {
+        service.Events.Changed += (_) =>
+        {
+            var dayEvents = service.GetDayEvents(date).ToList();
+            events.SetIfChanged(dayEvents);
+        };
+
+        events.Changed += (items) =>
+        {
+            System.Console.WriteLine(
+                $"Events changed for date: {date}, items count: {items.Count}"
+            );
+            button.TooltipText = $"For date {date} there are {items.Count} events!";
+        };
+
+        events.Set(service.GetDayEvents(date).ToList());
     }
 
     [MemberNotNull(nameof(button))]
@@ -87,10 +72,7 @@ public sealed partial class CalendarDay
             button.AddCssClass(cssClass);
 
         button.Focusable = false;
-
-        System.Console.WriteLine(
-            $"Create day button date: {date} in current month? {inCurrentMonth}"
-        );
+        button.TooltipText = $"For date {date} there are {events.Items.Count} events!";
 
         if (inCurrentMonth)
         {
@@ -99,25 +81,24 @@ public sealed partial class CalendarDay
             button.OnClicked += CreateEvent;
         }
 
-        button.TooltipText =
-            $"In the day {date} there are {service.GetDayEventsCount(date)} events!";
-
         Append(button);
     }
 
     private void CreateEvent(Button b, EventArgs e)
     {
-        service.AddEvent(
+        var dateTime = date.ToDateTime(new TimeOnly());
+        bool added = service.TryAddEvent(
             new CalendarEvent()
             {
                 Name = "Testowy",
                 Description = "Testowy bardzo prosty event",
-                Start = DateTime.Now,
-                End = DateTime.Now.AddHours(1),
+                Start = dateTime,
+                End = dateTime.AddHours(Random.Shared.Next(23) + 1),
             }
         );
 
-        System.Console.WriteLine($"Added event for {date}");
+        if (added)
+            System.Console.WriteLine($"Added event for {date}");
 
         // CreateEventFormData form = new CreateEventFormData();
         // button.AddCssClass("calendar-day-event");

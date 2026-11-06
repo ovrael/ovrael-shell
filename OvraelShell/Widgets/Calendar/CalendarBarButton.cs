@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.Enums.Settings;
 using OvraelShell.InterfaceElements;
+using OvraelShell.Models;
+using OvraelShell.Models.Calendar;
 using OvraelShell.Services;
 using OvraelShell.Utils.Settings;
 
@@ -18,15 +20,29 @@ public sealed partial class CalendarBarButton : IWithDisposableService<CalendarS
     private CalendarPopover popover;
     private uint timeoutId;
 
+    readonly ReactiveCollection<CalendarEvent> todayEvents = new();
+
     public static CalendarBarButton New(CalendarService service)
     {
         var widget = NewWithProperties([]);
         widget.AddService(service);
         widget.InitPopover(service);
-
-        service.AnyEventsToday.Changed += (isEventToday) => widget.Update();
-
+        widget.SetupEvents(service);
         return widget;
+    }
+
+    private void SetupEvents(CalendarService service)
+    {
+        service.Events.Changed += (_) =>
+        {
+            var events = service.GetDayEvents(DateOnly.FromDateTime(DateTime.Now));
+            todayEvents.SetIfChanged(events);
+        };
+
+        todayEvents.Changed += (items) =>
+        {
+            Update();
+        };
     }
 
     [MemberNotNull(nameof(button))]
@@ -117,7 +133,7 @@ public sealed partial class CalendarBarButton : IWithDisposableService<CalendarS
         timeLabel.SetText(now.ToString(UserSettings.General.TimeFormatString));
         button.SetTooltipText(now.ToString(UserSettings.General.DateFormatString));
 
-        if (Service.AnyEventsToday.Value)
+        if (todayEvents.Items.Count > 0)
         {
             spaceLabel.Show();
             eventLabel.Show();

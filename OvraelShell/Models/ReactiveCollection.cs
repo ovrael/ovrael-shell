@@ -43,6 +43,16 @@ public sealed class ReactiveCollection<T>
         Changed?.Invoke(items);
     }
 
+    public bool SetIfChanged(IEnumerable<T> newCollection)
+    {
+        var list = newCollection as IList<T> ?? newCollection.ToList();
+        if (items.SequenceEqual(list))
+            return false;
+
+        Set(list);
+        return true;
+    }
+
     public bool RemoveWhere(Func<T, bool> predicate)
     {
         bool removed = false;

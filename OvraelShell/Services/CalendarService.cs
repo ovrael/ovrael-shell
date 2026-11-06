@@ -6,32 +6,29 @@ namespace OvraelShell.Services;
 /// <summary>Shows calendar with events.</summary>
 public sealed class CalendarService : IDisposable
 {
-    ReactiveCollection<CalendarEvent> events = new();
-
-    public ReactiveCollection<CalendarEvent> TodayEvents { get; set; } = new();
-    public ReactiveProperty<bool> AnyEventsToday = new();
+    public ReactiveCollection<CalendarEvent> Events { get; private set; } = new();
 
     public CalendarService()
     {
-        events.Changed += (items) => TodayEvents.Set(items.Where(i => i.IsToday()));
-        TodayEvents.Changed += (items) => AnyEventsToday.Set(items.Any());
-        System.Console.WriteLine($"events {events.Count}");
+        System.Console.WriteLine($"events {Events.Count}");
     }
 
-    public int GetDayEventsCount(DateOnly date)
+    public IEnumerable<CalendarEvent> GetDayEvents(DateOnly date)
     {
-        return events.Items.Count(i => i.IsDay(date));
+        return Events.Items.Where(i => i.IsDay(date));
     }
 
     public void Dispose() { }
 
-    public void AddEvent(CalendarEvent calendarEvent)
+    public bool TryAddEvent(CalendarEvent calendarEvent)
     {
-        if (events.Items.Contains(calendarEvent))
+        if (Events.Items.Contains(calendarEvent))
         {
-            return;
+            System.Console.WriteLine($"Calendar contains exact event (name, startTime, endTime)");
+            return false;
         }
 
-        events.Add(calendarEvent);
+        Events.Add(calendarEvent);
+        return true;
     }
 }
