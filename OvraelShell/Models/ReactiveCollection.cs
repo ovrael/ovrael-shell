@@ -8,7 +8,7 @@ public sealed class ReactiveCollection<T>
 
     public int Count => items.Count;
 
-    public event Action? Changed;
+    public event Action<List<T>>? Changed;
     public event Action? Cleared;
 
     public event Action<T>? Added;
@@ -20,7 +20,7 @@ public sealed class ReactiveCollection<T>
         items.Add(item);
 
         Added?.Invoke(item);
-        Changed?.Invoke();
+        Changed?.Invoke(items);
     }
 
     public bool Remove(T item)
@@ -29,9 +29,18 @@ public sealed class ReactiveCollection<T>
             return false;
 
         Removed?.Invoke(item);
-        Changed?.Invoke();
+        Changed?.Invoke(items);
 
         return true;
+    }
+
+    public void Set(IEnumerable<T> newCollection)
+    {
+        items.Clear();
+        items.AddRange(newCollection);
+
+        Cleared?.Invoke();
+        Changed?.Invoke(items);
     }
 
     public bool RemoveWhere(Func<T, bool> predicate)
@@ -50,7 +59,7 @@ public sealed class ReactiveCollection<T>
         }
 
         if (removed)
-            Changed?.Invoke();
+            Changed?.Invoke(items);
 
         return removed;
     }
@@ -62,7 +71,7 @@ public sealed class ReactiveCollection<T>
 
         items.Clear();
         Cleared?.Invoke();
-        Changed?.Invoke();
+        Changed?.Invoke(items);
     }
 
     /// <summary>

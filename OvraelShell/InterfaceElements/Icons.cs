@@ -94,6 +94,12 @@ public static class Icons
         public static readonly string Sleep = "󰒲";
     }
 
+    public static class Calendar
+    {
+        public static readonly string CalendarView = "";
+        public static readonly string Dot = "";
+    }
+
     public static class Workspace
     {
         public static readonly string Other = "?";

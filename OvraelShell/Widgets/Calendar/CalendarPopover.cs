@@ -17,8 +17,7 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
     private Label yearLabel;
     private CalendarMonth calendarMonth;
 
-    private readonly ReactiveProperty<int> monthDifference = new(0);
-    private readonly ReactiveProperty<int> yearDifference = new(0);
+    private readonly ReactiveProperty<DateOnly> date = new(DateOnly.FromDateTime(DateTime.Now));
 
     private Box content;
 
@@ -26,6 +25,7 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
     {
         var widget = NewWithProperties([]);
         widget.AddService(service);
+        widget.AppendCalendarWidgets();
         widget.SetParent(parent);
         return widget;
     }
@@ -33,25 +33,30 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
     [MemberNotNull(nameof(content))]
     partial void Initialize()
     {
-        CreateContent();
+        content = CreateContentBox();
         SetPosition(PositionType.Top);
         SetAutohide(true);
         SetChild(content);
         AddCssClass("popover");
         OnShow += (_, _) =>
         {
-            monthDifference.Set(0);
-            yearDifference.Set(0);
+            date.Set(DateOnly.FromDateTime(DateTime.Now));
         };
+    }
 
-        monthDifference.Changed += (d) =>
+    private void AppendCalendarWidgets()
+    {
+        var dateChanger = CreateDateChanger();
+        var dayNames = CalendarDayNamesHeader.New();
+        calendarMonth = CalendarMonth.New(Service, date);
+
+        content.Append(dateChanger);
+        content.Append(dayNames);
+        content.Append(calendarMonth);
+
+        date.Changed += (d) =>
         {
-            calendarMonth.FillDaysGrid(DateTime.Now, d, yearDifference.Value);
-            UpdateLabels();
-        };
-        yearDifference.Changed += (d) =>
-        {
-            calendarMonth.FillDaysGrid(DateTime.Now, monthDifference.Value, d);
+            calendarMonth.FillDaysGrid(d);
             UpdateLabels();
         };
     }
@@ -65,34 +70,20 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
     // Safe to call more than once
     public void RemoveService() { }
 
-    [MemberNotNull(nameof(content))]
-    private void CreateContent()
+    private Box CreateContentBox()
     {
-        content = Box.New(Orientation.Vertical, 8);
-        content.SetMarginTop(12);
-        content.SetMarginBottom(12);
-        content.SetMarginStart(12);
-        content.SetMarginEnd(12);
-
-        var dateChanger = CreateDateChanger();
-        var dayNames = CalendarDayNamesHeader.New();
-        calendarMonth = CalendarMonth.New(
-            DateTime.Now,
-            monthDifference.Value,
-            yearDifference.Value
-        );
-
-        content.Append(dateChanger);
-        content.Append(dayNames);
-        content.Append(calendarMonth);
+        var box = Box.New(Orientation.Vertical, 8);
+        box.SetMarginTop(12);
+        box.SetMarginBottom(12);
+        box.SetMarginStart(12);
+        box.SetMarginEnd(12);
+        return box;
     }
 
     private void UpdateLabels()
     {
-        var date = DateTime.Now;
-        int monthIndex = (date.Month + monthDifference - 1) % 12 + 1;
-        monthLabel.SetText(CalendarUtils.NumberToMonthName(monthIndex));
-        yearLabel.SetText($"{date.Year + yearDifference}");
+        monthLabel.SetText(CalendarUtils.NumberToMonthName(date.Value.Month));
+        yearLabel.SetText($"{date.Value.Year}");
     }
 
     private Box CreateDateChanger()
@@ -121,10 +112,8 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
         var nextButton = Button.NewWithLabel(">");
         nextButton.SetCursor(Cursors.Pointer);
 
-        previousButton.OnClicked += (_, _) =>
-            monthDifference.Set((monthDifference.Value + 11) % 12);
-
-        nextButton.OnClicked += (_, _) => monthDifference.Set((monthDifference.Value + 1) % 12);
+        previousButton.OnClicked += (_, _) => date.Set(date.Value.AddMonths(-1));
+        nextButton.OnClicked += (_, _) => date.Set(date.Value.AddMonths(1));
 
         container.Append(previousButton);
         container.Append(monthLabel);
@@ -144,8 +133,8 @@ public sealed partial class CalendarPopover : IWithDisposableService<CalendarSer
         var nextButton = Button.NewWithLabel(">");
         nextButton.SetCursor(Cursors.Pointer);
 
-        previousButton.OnClicked += (_, _) => yearDifference.Set(yearDifference.Value - 1);
-        nextButton.OnClicked += (_, _) => yearDifference.Set(yearDifference.Value + 1);
+        previousButton.OnClicked += (_, _) => date.Set(date.Value.AddYears(-1));
+        nextButton.OnClicked += (_, _) => date.Set(date.Value.AddYears(1));
 
         container.Append(previousButton);
         container.Append(yearLabel);

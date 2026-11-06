@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Gtk;
 using OvraelShell.InterfaceElements;
+using OvraelShell.Models.Calendar;
 using OvraelShell.Services;
 
 namespace OvraelShell.Widgets.Calendar.Elements;
@@ -51,11 +52,20 @@ public class CreateEventFormData
 public sealed partial class CalendarDay
 {
     Button button;
+    DateOnly date;
+    CalendarService service;
 
-    public static CalendarDay New(string label, IEnumerable<string> cssClasses, bool inCurrentMonth)
+    public static CalendarDay New(
+        CalendarService service,
+        DateOnly date,
+        IEnumerable<string> cssClasses,
+        bool inCurrentMonth
+    )
     {
         var day = NewWithProperties([]);
-        day.CreateButton(label, cssClasses, inCurrentMonth);
+        day.date = date;
+        day.service = service;
+        day.CreateButton($"{date.Day}", cssClasses, inCurrentMonth);
         return day;
     }
 
@@ -77,6 +87,11 @@ public sealed partial class CalendarDay
             button.AddCssClass(cssClass);
 
         button.Focusable = false;
+
+        System.Console.WriteLine(
+            $"Create day button date: {date} in current month? {inCurrentMonth}"
+        );
+
         if (inCurrentMonth)
         {
             button.SetCursor(Cursors.Pointer);
@@ -84,28 +99,43 @@ public sealed partial class CalendarDay
             button.OnClicked += CreateEvent;
         }
 
+        button.TooltipText =
+            $"In the day {date} there are {service.GetDayEventsCount(date)} events!";
+
         Append(button);
     }
 
     private void CreateEvent(Button b, EventArgs e)
     {
-        CreateEventFormData form = new CreateEventFormData();
-        button.AddCssClass("calendar-day-event");
+        service.AddEvent(
+            new CalendarEvent()
+            {
+                Name = "Testowy",
+                Description = "Testowy bardzo prosty event",
+                Start = DateTime.Now,
+                End = DateTime.Now.AddHours(1),
+            }
+        );
 
-        var window = Window.New();
-        window.Title = "Create event";
+        System.Console.WriteLine($"Added event for {date}");
 
-        var contentBox = Box.New(Orientation.Vertical, 20);
-        var titleBox = CreateEventTitle(form);
-        contentBox.Append(titleBox);
+        // CreateEventFormData form = new CreateEventFormData();
+        // button.AddCssClass("calendar-day-event");
 
-        window.SetChild(contentBox);
+        // var window = Window.New();
+        // window.Title = "Create event";
 
-        window.Present();
-        window.ForceFloating();
-        window.Resizable = false;
-        window.DefaultHeight = 600;
-        window.DefaultWidth = 300;
+        // var contentBox = Box.New(Orientation.Vertical, 20);
+        // var titleBox = CreateEventTitle(form);
+        // contentBox.Append(titleBox);
+
+        // window.SetChild(contentBox);
+
+        // window.Present();
+        // window.ForceFloating();
+        // window.Resizable = false;
+        // window.DefaultHeight = 600;
+        // window.DefaultWidth = 300;
         // window.Application = ShellServices.app;
     }
 

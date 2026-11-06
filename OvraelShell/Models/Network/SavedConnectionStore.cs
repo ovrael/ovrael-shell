@@ -26,7 +26,7 @@ public sealed class SavedConnectionStore : IDisposable
                 Update();
         };
 
-        Connections.Changed += () => Changed?.Invoke();
+        Connections.Changed += (_) => Changed?.Invoke();
 
         Update();
     }
@@ -57,7 +57,13 @@ public sealed class SavedConnectionStore : IDisposable
 
         try
         {
-            using var result = proxy.CallSync("ListConnections", null, DBusCallFlags.None, -1, null);
+            using var result = proxy.CallSync(
+                "ListConnections",
+                null,
+                DBusCallFlags.None,
+                -1,
+                null
+            );
             using var connections = result.GetChildValue(0);
 
             paths = connections.GetObjv(out _);

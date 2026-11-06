@@ -47,8 +47,8 @@ public sealed class NetworkService : IDisposable
             NetworkManagerBus.MainInterface
         );
 
-        Devices.Changed += () =>
-            WirelessDevice.Set(Devices.Items.OfType<WirelessDevice>().FirstOrDefault());
+        Devices.Changed += (items) =>
+            WirelessDevice.Set(items.OfType<WirelessDevice>().FirstOrDefault());
 
         ProxyGets.Bind(mainProxy, UpdateProperty, "State", "PrimaryConnectionType", "Devices");
     }
