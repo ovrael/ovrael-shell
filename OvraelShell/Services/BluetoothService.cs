@@ -48,6 +48,15 @@ public sealed class BluetoothService : IDisposable
 
         Adapter.Changed += OnAdapterChanged;
 
+        try
+        {
+            BluetoothAgent.Export();
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"Bluetooth: no pairing agent, pairing can fail: {exception.Message}");
+        }
+
         Reload();
     }
 
@@ -71,6 +80,9 @@ public sealed class BluetoothService : IDisposable
             Console.WriteLine("Bluetooth: BlueZ is not running.");
             return;
         }
+
+        // A new bluetoothd does not know the agent
+        _ = BluetoothAgent.RegisterAsync();
 
         try
         {

@@ -165,20 +165,25 @@ public sealed partial class BluetoothDevice
     public Task ConnectAsync() =>
         RunAsync(async () =>
         {
-            if (!Paired.Value)
+            // The agent accepts this device until it is trusted - BlueZ can ask
+            // to authorize its services before that
+            using (BluetoothAgent.AllowPairing(ObjectPath))
             {
-                Status.Set("Pairing...");
-                await CallAsync("Pair");
-            }
+                if (!Paired.Value)
+                {
+                    Status.Set("Pairing...");
+                    await CallAsync("Pair");
+                }
 
-            if (!Trusted.Value)
-            {
-                await BluezBus.SetPropertyAsync(
-                    ObjectPath,
-                    BluezBus.DeviceInterface,
-                    "Trusted",
-                    Variant.NewBoolean(true)
-                );
+                if (!Trusted.Value)
+                {
+                    await BluezBus.SetPropertyAsync(
+                        ObjectPath,
+                        BluezBus.DeviceInterface,
+                        "Trusted",
+                        Variant.NewBoolean(true)
+                    );
+                }
             }
 
             Status.Set("Connecting...");
