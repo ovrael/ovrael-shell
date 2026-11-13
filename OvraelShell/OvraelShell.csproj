@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="GirCore.Gtk-4.0" Version="0.8.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.15" />
     <PackageReference Include="ZwlrLayerShell" Version="1.0.1" />
   </ItemGroup>
 

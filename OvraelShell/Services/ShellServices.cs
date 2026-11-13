@@ -1,3 +1,5 @@
+using OvraelShell.Utils.Database;
+
 namespace OvraelShell.Services;
 
 /// <summary>
@@ -20,6 +22,7 @@ public sealed class ShellServices : IDisposable
     private KdeConnectService? kdeConnect;
     private TrashService? trash;
     private CalendarService? calendar;
+    private ShellDatabase? database;
 
     // Created on the first use - the service of a widget that is not loaded is not started
     public NetworkService Network => network ??= new();
@@ -36,6 +39,9 @@ public sealed class ShellServices : IDisposable
     public KdeConnectService KdeConnect => kdeConnect ??= new();
     public TrashService Trash => trash ??= new();
     public CalendarService Calendar => calendar ??= new();
+
+    // Opened on the first use - creates the file and updates the schema
+    public ShellDatabase Database => database ??= new();
 
     /// <summary>Detach the bars first, so disposing a service does not update their widgets.</summary>
     public void Dispose()
@@ -54,5 +60,8 @@ public sealed class ShellServices : IDisposable
         kdeConnect?.Dispose();
         trash?.Dispose();
         calendar?.Dispose();
+
+        // Last - the services above can use it while they are disposed
+        database?.Dispose();
     }
 }
