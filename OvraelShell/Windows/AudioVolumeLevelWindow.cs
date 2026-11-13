@@ -69,7 +69,7 @@ public sealed partial class AudioVolumeLevelWindow
         DefaultWidth = 160;
         Opacity = 0.75;
         MarginBottom = 80;
-        Modal = true;
+        Modal = false;
         Resizable = false;
         Visible = false;
         Focusable = false;
